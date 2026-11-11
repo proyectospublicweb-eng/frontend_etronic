@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # No reescribir index.html ni llamadas dirigidas al backend /apietronic
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_URI} !^/apietronic [NC]
+
+  # Servir archivos y carpetas reales directamente (imágenes, CSS, JS)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+
+  # Redirigir rutas de React Router (/adminetronic, /login, etc.) a index.html
+  RewriteRule . /index.html [L]
+</IfModule>
