@@ -1148,11 +1148,19 @@ function LandingPage() {
       >
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-5 px-4 sm:flex-row sm:px-6 sm:pr-24 xl:pr-6">
           <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
-            <img
-              src="/images/logo-etronic-dark.png"
-              alt="ETRONIC"
-              className="h-8 w-auto object-contain"
-            />
+            <a
+              href="/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Acceso administrativo Etronic"
+              className="inline-flex shrink-0 transition duration-200 hover:opacity-85"
+            >
+              <img
+                src="/images/logo-etronic-dark.png"
+                alt="ETRONIC"
+                className="h-8 w-auto object-contain"
+              />
+            </a>
             <p id="footer-info" className="text-center text-xs sm:text-left sm:text-sm">
               © {CURRENT_YEAR} <span className="font-semibold text-slate-200">ETRONIC</span> |
               Soporte Técnico Remoto y Servidores Virtuales
