@@ -38,7 +38,6 @@ jobs:
         run: npm run build
 
       - name: Desplegar dist/ hacia carpeta de etronic.com.mx en cPanel vía FTP/FTPS
-        if: ${{ secrets.FTP_SERVER != '' && secrets.FTP_USERNAME != '' && secrets.FTP_PASSWORD != '' }}
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
