@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch:
 
+concurrency:
+  group: deploy-frontend-cpanel
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     name: Compilar con Vite+ y publicar en cPanel
@@ -32,18 +36,20 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: npm run build
 
-      - name: Desplegar dist/ hacia public_html en cPanel vía FTP/FTPS
+      - name: Desplegar dist/ hacia carpeta de etronic.com.mx en cPanel vía FTP/FTPS
         if: ${{ secrets.FTP_SERVER != '' && secrets.FTP_USERNAME != '' && secrets.FTP_PASSWORD != '' }}
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR || './' }}
           local-dir: ./dist/
           dangerous-clean-slate: false
           exclude: |
             **/.git*
             **/.git*/**
+            **/.htaccess
             **/cgi-bin/**
             **/.well-known/**
             **/apietronic/**
