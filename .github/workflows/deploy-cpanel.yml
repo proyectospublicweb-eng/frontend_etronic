@@ -1,4 +1,4 @@
-# Despliegue continuo automático de Frontend Etronic hacia cPanel (etronic.com.mx)
+# Despliegue continuo automático de Frontend Etronic hacia cPanel (etronic.com.mx) vía HTTPS 443
 name: Build & Deploy Frontend to cPanel
 
 on:
@@ -13,136 +13,104 @@ concurrency:
 
 jobs:
   build-and-deploy:
-    name: Compilar con Vite+ y publicar en cPanel
+    name: Compilar con Vite+ y publicar en etronic.com.mx (HTTPS 443)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Descargar código fuente
+      - name: 1. Descargar código fuente
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js 24
+      - name: 2. Configurar Node.js 24
         uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: "npm"
 
-      - name: Instalar dependencias
+      - name: 3. Instalar dependencias
         run: npm ci
 
-      - name: Verificar formato, linter y tipos (Vite+)
+      - name: 4. Verificar formato, linter y tipos (Vite+)
         run: npm run check
 
-      - name: Compilar bundle de producción (dist/)
+      - name: 5. Compilar bundle de producción (dist/)
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: npm run build
 
-      - name: Desplegar dist/ hacia carpeta de etronic.com.mx en cPanel vía FTPS
+      - name: 6. Publicar dist/ en etronic.com.mx vía HTTPS (Puerto 443)
         env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN || secrets.FTP_PASSWORD }}
         run: |
-          python3 - <<'PY'
-          import ftplib
-          import os
-          import socket
-          import ssl
-          from pathlib import Path
+          node - << 'EOF'
+          const fs = require("fs");
+          const path = require("path");
 
-          host = os.environ["FTP_SERVER"].strip()
-          user = os.environ["FTP_USERNAME"].strip()
-          password = os.environ["FTP_PASSWORD"]
-          remote_root = (os.environ.get("FTP_SERVER_DIR") or "").strip().strip("/")
-          local_root = Path("dist")
+          const distDir = path.resolve("dist");
+          const files = {};
 
-          resolved_ip = socket.gethostbyname(host)
-          print(f"[1/4] Conectando por TCP a {host} ({resolved_ip}:21)...")
+          function walk(dir) {
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) {
+                walk(full);
+              } else {
+                const rel = path.relative(distDir, full).replace(/\\/g, "/");
+                if (rel === ".htaccess") continue;
+                files[rel] = fs.readFileSync(full).toString("base64");
+              }
+            }
+          }
+          walk(distDir);
 
-          class ReusableTLSFTP(ftplib.FTP_TLS):
-              def ntransfercmd(self, cmd, rest=None):
-                  conn, size = ftplib.FTP.ntransfercmd(self, cmd, rest)
-                  if self._prot_p:
-                      conn = self.context.wrap_socket(
-                          conn,
-                          server_hostname=self.host,
-                          session=self.sock.session,
-                      )
-                  return conn, size
+          (async () => {
+            const token = (process.env.DEPLOY_TOKEN || "").trim();
+            if (!token) {
+              console.error("Falta configurar el secret DEPLOY_TOKEN en GitHub.");
+              process.exit(1);
+            }
 
-              def makepasv(self):
-                  _pasv_host, pasv_port = super().makepasv()
-                  return resolved_ip, pasv_port
+            const entries = Object.entries(files);
+            // Subir index.html al final cuando todos los nuevos assets JS/CSS ya existen en disco
+            entries.sort(([a], [b]) => {
+              const isLastA = a === "index.html" ? 1 : 0;
+              const isLastB = b === "index.html" ? 1 : 0;
+              return isLastA - isLastB;
+            });
 
-          ctx = ssl.create_default_context()
-          ctx.check_hostname = False
-          ctx.verify_mode = ssl.CERT_NONE
-          ctx.maximum_version = ssl.TLSVersion.TLSv1_2
+            const MAX_BATCH_BYTES = 2.5 * 1024 * 1024;
+            const batches = [];
+            let currentBatch = {};
+            let currentBytes = 0;
 
-          ftp = ReusableTLSFTP(context=ctx)
-          ftp.connect(host=resolved_ip, port=21, timeout=25)
-          print(f"[2/4] Banner recibido: {ftp.getwelcome().splitlines()[0]}")
-          ftp.auth()
-          ftp.login(user=user, passwd=password)
-          ftp.prot_p()
-          print("[3/4] Autenticación FTPS exitosa. Verificando canal pasivo de datos...")
+            for (const [relPath, b64] of entries) {
+              const itemBytes = relPath.length + b64.length + 16;
+              if (currentBytes + itemBytes > MAX_BATCH_BYTES && Object.keys(currentBatch).length > 0) {
+                batches.push(currentBatch);
+                currentBatch = {};
+                currentBytes = 0;
+              }
+              currentBatch[relPath] = b64;
+              currentBytes += itemBytes;
+            }
+            if (Object.keys(currentBatch).length > 0) {
+              batches.push(currentBatch);
+            }
 
-          if remote_root:
-              for part in remote_root.split("/"):
-                  if not part:
-                      continue
-                  try:
-                      ftp.cwd(part)
-                  except ftplib.error_perm:
-                      ftp.mkd(part)
-                      ftp.cwd(part)
-
-          base_pwd = ftp.pwd()
-          print(f"      Directorio remoto activo: {base_pwd}")
-          ftp.nlst()
-          print("      Canal de datos pasivo verificado OK.")
-
-          ensured_dirs = set()
-
-          def ensure_remote_dir(rel_dir: str):
-              if not rel_dir or rel_dir == "." or rel_dir in ensured_dirs:
-                  return
-              ftp.cwd(base_pwd)
-              current = ""
-              for segment in rel_dir.split("/"):
-                  current = f"{current}/{segment}" if current else segment
-                  if current in ensured_dirs:
-                      ftp.cwd(segment)
-                      continue
-                  try:
-                      ftp.cwd(segment)
-                  except ftplib.error_perm:
-                      ftp.mkd(segment)
-                      ftp.cwd(segment)
-                  ensured_dirs.add(current)
-
-          uploaded = 0
-          for file_path in sorted(local_root.rglob("*")):
-              if not file_path.is_file():
-                  continue
-              rel = file_path.relative_to(local_root).as_posix()
-              if (
-                  rel == ".htaccess"
-                  or rel.startswith("cgi-bin/")
-                  or rel.startswith(".well-known/")
-                  or rel.startswith("apietronic/")
-              ):
-                  continue
-              parent = os.path.dirname(rel)
-              fname = os.path.basename(rel)
-              ensure_remote_dir(parent)
-              target_dir = f"{base_pwd.rstrip('/')}/{parent}" if parent else base_pwd
-              ftp.cwd(target_dir)
-              with file_path.open("rb") as fh:
-                  ftp.storbinary(f"STOR {fname}", fh)
-              uploaded += 1
-
-          ftp.quit()
-          print(f"[4/4] Despliegue Frontend completado: {uploaded} archivos publicados en etronic.com.mx.")
-          PY
+            console.log(`Enviando ${entries.length} archivos en ${batches.length} lote(s) a https://etronic.com.mx/deploy-hook.php ...`);
+            for (let i = 0; i < batches.length; i++) {
+              const batch = batches[i];
+              console.log(`Subiendo lote ${i + 1}/${batches.length} (${Object.keys(batch).length} archivos)...`);
+              const res = await fetch("https://etronic.com.mx/deploy-hook.php", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Deploy-Token": token,
+                },
+                body: JSON.stringify({ target: "frontend", files: batch }),
+              });
+              const text = await res.text();
+              console.log(`Lote ${i + 1} HTTP ${res.status}:`, text);
+              if (!res.ok) process.exit(1);
+            }
+          })();
+          EOF
