@@ -357,7 +357,13 @@ function ControlSoportePanel({ conversations, summary, onConversationsUpdated })
           <div className="max-h-[480px] divide-y divide-white/10 overflow-y-auto sm:max-h-[560px]">
             {filteredConversations.map((conv) => {
               const isSelected = activeConversation?.id === conv.id;
-              const lastMsg = conv.mensajes?.[conv.mensajes.length - 1]?.mensaje || "";
+              const meaningfulLastMsg = [...(conv.mensajes || [])]
+                .reverse()
+                .find((m) => m.remitente !== "sistema");
+              const lastMsg =
+                meaningfulLastMsg?.mensaje ||
+                conv.mensajes?.[conv.mensajes.length - 1]?.mensaje ||
+                "";
               const statusInfo = STATUS_META[conv.estado] || STATUS_META.pendiente;
 
               return (
@@ -502,6 +508,7 @@ function ControlSoportePanel({ conversations, summary, onConversationsUpdated })
 
                 {activeConversation.mensajes?.map((msg) => {
                   const isClient = msg.remitente === "cliente";
+                  const isAutoSystem = msg.remitente === "sistema";
                   return (
                     <div
                       key={msg.id}
@@ -511,15 +518,25 @@ function ControlSoportePanel({ conversations, summary, onConversationsUpdated })
                         className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow sm:px-4 ${
                           isClient
                             ? "rounded-tl-sm bg-[#f2f3f9] font-medium text-[#0f172a]"
-                            : "crescendo-btn-gradient rounded-tr-sm text-white"
+                            : isAutoSystem
+                              ? "rounded-tr-sm border border-indigo-400/25 bg-white/10 text-slate-100"
+                              : "crescendo-btn-gradient rounded-tr-sm text-white"
                         }`}
                       >
                         <p
                           className={`mb-0.5 text-[10px] font-extrabold uppercase tracking-wider ${
-                            isClient ? "text-[#1d4ed8]" : "text-indigo-100"
+                            isClient
+                              ? "text-[#1d4ed8]"
+                              : isAutoSystem
+                                ? "text-[#60a5fa]"
+                                : "text-indigo-100"
                           }`}
                         >
-                          {isClient ? activeConversation.nombre : "Respuesta Admin"}
+                          {isClient
+                            ? activeConversation.nombre
+                            : isAutoSystem
+                              ? "Respuesta Automática"
+                              : "Respuesta Admin"}
                         </p>
                         <p className="whitespace-pre-wrap break-words">{msg.mensaje}</p>
                       </div>
