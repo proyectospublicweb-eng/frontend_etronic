@@ -1,3 +1,4 @@
+# Despliegue continuo automático de Frontend Etronic hacia cPanel (etronic.com.mx)
 name: Build & Deploy Frontend to cPanel
 
 on:
