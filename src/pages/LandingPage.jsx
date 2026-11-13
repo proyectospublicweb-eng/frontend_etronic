@@ -19,6 +19,7 @@ import {
   IconSearch,
   IconServer,
   IconShieldCheck,
+  IconSparklesBrain,
   IconTools,
   IconTwitterX,
 } from "../components/LandingIcons";
@@ -60,6 +61,7 @@ const HERO_STRIP_ITEMS = [
 
 const SPECIALIZED_SERVICES = [
   {
+    id: "windows-365",
     badge: "MÁS SOLICITADO",
     category: "Plataformas Corporativas",
     image: "/images/card-windows-365.jpg",
@@ -70,9 +72,17 @@ const SPECIALIZED_SERVICES = [
       "Ofrecemos asistencia experta para resolver cualquier inconveniente en plataformas Windows y Office 365, asegurando que tu equipo funcione de manera óptima.",
     cta: "Solicita Soporte",
     href: "#contacto",
-    cardSpeed: "0.03",
+    heroSlide: {
+      prefix: "Soporte Técnico en ",
+      highlight: "Windows y Office 365",
+      suffix: "",
+      floatingBottom: "Continuidad Microsoft 365",
+      floatingTop: "Atención Remota Experta",
+      navTarget: "servicios",
+    },
   },
   {
+    id: "virtual-servers",
     badge: "ALTO RENDIMIENTO",
     category: "Infraestructura Cloud",
     image: "/images/card-virtual-server.jpg",
@@ -83,9 +93,17 @@ const SPECIALIZED_SERVICES = [
       "Proporcionamos servidores virtuales personalizados que se adaptan a tus necesidades específicas, garantizando seguridad y rendimiento.",
     cta: "Conoce Más",
     href: "#principales",
-    cardSpeed: "-0.04",
+    heroSlide: {
+      prefix: "Renta de ",
+      highlight: "Servidores Virtuales",
+      suffix: "",
+      floatingBottom: "Alta Disponibilidad Cloud",
+      floatingTop: "Recursos Personalizados",
+      navTarget: "principales",
+    },
   },
   {
+    id: "contpaqi",
     badge: "ESPECIALIZADO",
     category: "Gestión Empresarial",
     image: "/images/card-contpaqi.jpg",
@@ -96,7 +114,35 @@ const SPECIALIZED_SERVICES = [
       "Brindamos soporte completo para la paquetería Contpaqi, ayudando a gestionar eficientemente tus procesos contables y administrativos.",
     cta: "Obtén Asistencia",
     href: "#contacto",
-    cardSpeed: "0.03",
+    heroSlide: {
+      prefix: "Soporte en ",
+      highlight: "Paquetería Contpaqi",
+      suffix: "",
+      floatingBottom: "Procesos Contables al Día",
+      floatingTop: "Respaldo Empresarial",
+      navTarget: "servicios",
+    },
+  },
+  {
+    id: "ai-custom",
+    badge: "INNOVACIÓN IA",
+    category: "Inteligencia Artificial",
+    image: "/images/card-ai-solutions.jpg",
+    icon: IconSparklesBrain,
+    title: "Implementación de IA a la Medida",
+    reviews: "(145)",
+    description:
+      "Desarrollamos soluciones de IA a la medida, desde automatización de flujos hasta asistentes virtuales, diseñadas para optimizar procesos en cualquier sector ya sea, contable, educativo, empresarial, etc. Transformamos tus tareas repetitivas en sistemas inteligentes, seguros y fáciles de usar.",
+    cta: "Cotizar Solución IA",
+    href: "#solucion-ia",
+    heroSlide: {
+      prefix: "Implementamos ",
+      highlight: "Inteligencia Artificial",
+      suffix: " para tu Negocio",
+      floatingBottom: "IA Adaptada a tu Giro",
+      floatingTop: "Contable · Escolar · Médico · Social",
+      navTarget: "servicios",
+    },
   },
 ];
 
@@ -121,57 +167,72 @@ const HERO_SLIDES = [
     floatingBottom: "Soporte Remoto Activo",
     floatingTop: "Servidores Dedicados",
   },
-  ...SPECIALIZED_SERVICES.map((srv, index) => {
-    const titleHighlights = [
-      {
-        prefix: "Soporte Técnico en ",
-        highlight: "Windows y Office 365",
-        suffix: "",
-        floatingBottom: "Continuidad Microsoft 365",
-        floatingTop: "Atención Remota Experta",
-      },
-      {
-        prefix: "Renta de ",
-        highlight: "Servidores Virtuales",
-        suffix: "",
-        floatingBottom: "Alta Disponibilidad Cloud",
-        floatingTop: "Recursos Personalizados",
-      },
-      {
-        prefix: "Soporte en ",
-        highlight: "Paquetería Contpaqi",
-        suffix: "",
-        floatingBottom: "Procesos Contables al Día",
-        floatingTop: "Respaldo Empresarial",
-      },
-    ][index] || {
-      prefix: "",
-      highlight: srv.title,
-      suffix: "",
-      floatingBottom: srv.category,
-      floatingTop: srv.badge,
-    };
+  ...[
+    SPECIALIZED_SERVICES[3],
+    SPECIALIZED_SERVICES[0],
+    SPECIALIZED_SERVICES[1],
+    SPECIALIZED_SERVICES[2],
+  ].map((srv) => ({
+    id: `hero-srv-${srv.id}`,
+    eyebrow: `${srv.badge} · ${srv.category}`,
+    titlePrefix: srv.heroSlide.prefix,
+    titleHighlight: srv.heroSlide.highlight,
+    titleSuffix: srv.heroSlide.suffix,
+    reviews: srv.reviews,
+    description: srv.description,
+    primaryCta: srv.cta,
+    primaryHref: srv.href,
+    primaryNav: srv.heroSlide.navTarget,
+    secondaryCta: "Ver Todos los Servicios",
+    secondaryHref: "#servicios",
+    secondaryNav: "servicios",
+    image: srv.image,
+    imageAlt: srv.title,
+    floatingBottom: srv.heroSlide.floatingBottom,
+    floatingTop: srv.heroSlide.floatingTop,
+  })),
+];
 
-    return {
-      id: `hero-srv-${index}`,
-      eyebrow: `${srv.badge} · ${srv.category}`,
-      titlePrefix: titleHighlights.prefix,
-      titleHighlight: titleHighlights.highlight,
-      titleSuffix: titleHighlights.suffix,
-      reviews: srv.reviews,
-      description: srv.description,
-      primaryCta: srv.cta,
-      primaryHref: srv.href,
-      primaryNav: srv.href === "#principales" ? "principales" : "servicios",
-      secondaryCta: "Ver Todos los Servicios",
-      secondaryHref: "#servicios",
-      secondaryNav: "servicios",
-      image: srv.image,
-      imageAlt: srv.title,
-      floatingBottom: titleHighlights.floatingBottom,
-      floatingTop: titleHighlights.floatingTop,
-    };
-  }),
+const AI_SECTORS = [
+  {
+    title: "Servicios Contables",
+    detail: "Automatización de pólizas, validación fiscal, conciliaciones y asistentes internos.",
+  },
+  {
+    title: "Escuelas y Educación",
+    detail: "Tutores inteligentes, control escolar, admisiones y respuestas a padres 24/7.",
+  },
+  {
+    title: "Clínicas y Servicios Médicos",
+    detail: "Agendamiento inteligente, seguimiento a pacientes y resúmenes administrativos.",
+  },
+  {
+    title: "Proyectos Sociales y ONG",
+    detail: "Clasificación de solicitudes, atención ciudadana automatizada y análisis de impacto.",
+  },
+  {
+    title: "Comercio y Ventas",
+    detail: "Asesores virtuales conectados a tu catálogo, cotizadores y seguimiento de clientes.",
+  },
+  {
+    title: "Cualquier Giro a la Medida",
+    detail: "Analizamos tu flujo actual e integramos la IA exacta que acelere tus procesos.",
+  },
+];
+
+const AI_HIGHLIGHTS = [
+  {
+    title: "Flujos Automatizados",
+    detail: "Reduce captura manual y errores operativos.",
+  },
+  {
+    title: "Asistentes 24/7",
+    detail: "Atención inmediata para clientes y equipo.",
+  },
+  {
+    title: "Integración Segura",
+    detail: "Adaptada a tu software y reglas actuales.",
+  },
 ];
 
 const MAIN_FEATURES = [
@@ -279,6 +340,14 @@ function LandingPage() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [expandedServices, setExpandedServices] = useState({});
+
+  const toggleServiceDescription = (serviceId) => {
+    setExpandedServices((prev) => ({
+      ...prev,
+      [serviceId]: !prev[serviceId],
+    }));
+  };
 
   useParallaxEngine(pageRef);
 
@@ -370,7 +439,18 @@ function LandingPage() {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return;
 
-    if (q.includes("vis") || q.includes("nosotros") || q.includes("misión")) {
+    if (
+      q.includes("ia") ||
+      q.includes("inteligencia") ||
+      q.includes("contab") ||
+      q.includes("escol") ||
+      q.includes("medic") ||
+      q.includes("médic") ||
+      q.includes("social") ||
+      q.includes("automat")
+    ) {
+      document.getElementById("solucion-ia")?.scrollIntoView({ behavior: "smooth" });
+    } else if (q.includes("vis") || q.includes("nosotros") || q.includes("misión")) {
       document.getElementById("sobre-nosotros")?.scrollIntoView({ behavior: "smooth" });
     } else if (q.includes("cliente") || q.includes("opin") || q.includes("testimonio")) {
       document.getElementById("testimonios")?.scrollIntoView({ behavior: "smooth" });
@@ -380,6 +460,14 @@ function LandingPage() {
       document.getElementById("servicios")?.scrollIntoView({ behavior: "smooth" });
     }
     setSearchOpen(false);
+  };
+
+  const openProjectChat = (prefillMessage = "") => {
+    window.dispatchEvent(
+      new CustomEvent("etronic:open-chat", {
+        detail: { prefillMessage },
+      }),
+    );
   };
 
   return (
@@ -786,7 +874,98 @@ function LandingPage() {
             className="pointer-events-none absolute -left-28 top-[46%] h-96 w-96 rounded-full bg-blue-500/[0.12] blur-3xl"
           />
 
-          {/* Sección 1: Nuestros Servicios Especializados (Tarjetas Escalonadas + Ventana Parallax 3D) */}
+          {/* Sección Destacada post-slider: Enfoque Visual en Inteligencia Artificial */}
+          <section
+            id="ia-destacado"
+            data-reveal
+            className="relative mx-auto mb-12 max-w-6xl px-4 pb-2 sm:mb-16 sm:px-6"
+          >
+            <div className="relative overflow-hidden rounded-3xl border border-indigo-400/20 bg-gradient-to-br from-[#061238]/95 via-[#030b26]/95 to-[#0b1038]/95 p-5 shadow-2xl shadow-black/35 sm:p-8 lg:p-10">
+              <div
+                data-parallax-section="-0.16"
+                className="parallax-tech-grid pointer-events-none absolute -inset-16 opacity-50"
+              />
+              <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
+
+              <div className="relative z-10 grid grid-cols-1 items-center gap-7 lg:grid-cols-12 lg:gap-10">
+                {/* Columna de Imagen IA de Alto Impacto */}
+                <div className="lg:col-span-6">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#040a21] shadow-[0_18px_45px_rgba(0,0,0,0.5)] sm:rounded-3xl">
+                    <img
+                      src="/images/ai-showcase-banner.jpg"
+                      alt="Visualización 3D de Inteligencia Artificial aplicada a procesos de negocio en Etronic"
+                      className="h-full w-full object-cover transition duration-700 hover:scale-[1.03]"
+                    />
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#040a21]/85 via-[#040a21]/30 to-transparent" />
+                    <div className="pointer-events-none absolute bottom-3 left-3 flex max-w-[calc(100%-1.5rem)] items-center gap-2 rounded-xl border border-white/15 bg-[#040a21]/85 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur-md sm:bottom-4 sm:left-4 sm:px-3.5 sm:py-2 sm:text-xs">
+                      <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />
+                      <span className="truncate">IA Aplicada a Procesos Reales</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Columna Informativa Concisa */}
+                <div className="min-w-0 lg:col-span-6">
+                  <div className="mb-3.5 inline-flex max-w-full items-center gap-2 rounded-2xl border border-[#60a5fa]/30 bg-[#3b82f6]/15 px-3 py-1 text-[10px] font-semibold uppercase leading-snug tracking-[0.08em] text-[#60a5fa] sm:rounded-full sm:px-3.5 sm:text-xs sm:tracking-wider">
+                    <IconSparklesBrain className="h-4 w-4 shrink-0" />
+                    <span>Inteligencia Artificial a la Medida</span>
+                  </div>
+
+                  <h2 className="font-display mb-3.5 text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl lg:text-[34px]">
+                    Lleva la{" "}
+                    <span className="crescendo-text-gradient">Inteligencia Artificial</span> a tus
+                    procesos diarios
+                  </h2>
+
+                  <p className="mb-5 text-sm leading-relaxed text-slate-300 sm:text-[15px]">
+                    Convertimos tareas repetitivas y cuellos de botella en flujos inteligentes
+                    adaptados a tu equipo. Implementamos asistentes virtuales, lectura automática de
+                    documentos y análisis operativo sin interrumpir tus herramientas actuales.
+                  </p>
+
+                  <div className="mb-6 grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
+                    {AI_HIGHLIGHTS.map((item) => (
+                      <div
+                        key={item.title}
+                        className="min-w-0 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5"
+                      >
+                        <p className="font-display text-xs font-bold leading-snug text-white">
+                          {item.title}
+                        </p>
+                        <p className="mt-0.5 text-[11px] leading-snug text-slate-300/90">
+                          {item.detail}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openProjectChat(
+                          "Hola, quiero platicar sobre cómo implementar Inteligencia Artificial en mi negocio o proyecto: ",
+                        )
+                      }
+                      className="crescendo-btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(93,74,255,0.45)] transition duration-300 hover:-translate-y-0.5 sm:w-auto"
+                    >
+                      <span>Solicitar Diagnóstico IA</span>
+                      <IconArrowRight className="h-4 w-4 shrink-0" />
+                    </button>
+
+                    <a
+                      href="#solucion-ia"
+                      className="inline-flex w-full items-center justify-center rounded-full border border-white/25 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition duration-300 hover:border-[#60a5fa] hover:bg-white/10 sm:w-auto"
+                    >
+                      Ver Sectores Compatibles
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Sección 1: Nuestros Servicios Especializados */}
           <section
             id="servicios"
             data-reveal
@@ -806,76 +985,173 @@ function LandingPage() {
               </a>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-7">
-              {SPECIALIZED_SERVICES.map((service) => (
-                <div
-                  key={service.title}
-                  data-parallax-section={service.cardSpeed}
-                  data-parallax-desktop
-                  className="flex"
-                >
-                  <article className="group flex w-full flex-col justify-between overflow-hidden rounded-2xl bg-[#f2f3f9] transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-950/[0.07]">
-                    <div>
-                      {/* Ventana Parallax Interna en el Render 3D */}
-                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#e6e8f4]">
-                        <span className="crescendo-btn-gradient absolute left-4 top-4 z-10 rounded-full px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md shadow-indigo-600/25">
-                          {service.badge}
-                        </span>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-5 xl:gap-6">
+              {SPECIALIZED_SERVICES.map((service) => {
+                const isLongDescription = service.description.length > 175;
+                const isExpanded = Boolean(expandedServices[service.id]);
 
-                        <img
-                          src={service.image}
-                          alt={service.title}
-                          data-parallax-section="-0.11"
-                          data-parallax-scale="1.14"
-                          className="h-full w-full object-cover"
-                        />
-
-                        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#f2f3f9] to-transparent" />
-                      </div>
-
-                      {/* Cuerpo de Tarjeta */}
-                      <div className="px-6 pt-3">
-                        <p className="mb-1 text-xs font-medium text-slate-500">
-                          {service.category}
-                        </p>
-
-                        <h3 className="font-display mb-2 text-lg font-bold leading-snug text-[#0f172a]">
-                          {service.title}
-                        </h3>
-
-                        <div className="mb-3 flex items-center gap-1.5 text-xs">
-                          <span className="tracking-wider text-amber-400" aria-label="5 estrellas">
-                            ★★★★★
+                return (
+                  <div key={service.id} className="flex">
+                    <article className="group flex w-full flex-col justify-between overflow-hidden rounded-2xl bg-[#f2f3f9] transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-950/[0.07]">
+                      <div>
+                        {/* Ventana Parallax Interna en el Render 3D */}
+                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#e6e8f4]">
+                          <span className="crescendo-btn-gradient absolute left-3.5 top-3.5 z-10 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md shadow-indigo-600/25">
+                            {service.badge}
                           </span>
-                          <span className="font-medium text-slate-400">{service.reviews}</span>
+
+                          <img
+                            src={service.image}
+                            alt={service.title}
+                            data-parallax-section="-0.11"
+                            data-parallax-scale="1.14"
+                            className="h-full w-full object-cover"
+                          />
+
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#f2f3f9] to-transparent" />
                         </div>
 
-                        <p className="text-sm leading-relaxed text-slate-600">
-                          {service.description}
-                        </p>
+                        {/* Cuerpo de Tarjeta */}
+                        <div className="px-5 pt-3">
+                          <p className="mb-1 text-xs font-medium text-slate-500">
+                            {service.category}
+                          </p>
+
+                          <h3 className="font-display mb-2 min-h-[2.75rem] text-[17px] font-bold leading-snug text-[#0f172a]">
+                            {service.title}
+                          </h3>
+
+                          <div className="mb-3 flex items-center gap-1.5 text-xs">
+                            <span
+                              className="tracking-wider text-amber-400"
+                              aria-label="5 estrellas"
+                            >
+                              ★★★★★
+                            </span>
+                            <span className="font-medium text-slate-400">{service.reviews}</span>
+                          </div>
+
+                          <p
+                            className={`text-[13px] leading-relaxed text-slate-600 ${
+                              isLongDescription && !isExpanded ? "line-clamp-4" : ""
+                            }`}
+                          >
+                            {service.description}
+                          </p>
+
+                          {isLongDescription && (
+                            <button
+                              type="button"
+                              onClick={() => toggleServiceDescription(service.id)}
+                              aria-expanded={isExpanded}
+                              className="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-[#1d4ed8] transition hover:text-[#5848f4]"
+                            >
+                              {isExpanded ? "Leer menos" : "Leer más"}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Pie de Tarjeta con CTA Azul + Botón Circular Violeta */}
-                    <div className="mt-6 flex items-center justify-between px-6 pb-6">
-                      <a
-                        href={service.href}
-                        className="font-display text-sm font-extrabold text-[#1d4ed8] transition hover:text-[#5848f4]"
-                      >
-                        {service.cta}
-                      </a>
+                      {/* Pie de Tarjeta con CTA Azul + Botón Circular Violeta */}
+                      <div className="mt-5 flex items-center justify-between px-5 pb-5">
+                        <a
+                          href={service.href}
+                          className="font-display text-sm font-extrabold text-[#1d4ed8] transition hover:text-[#5848f4]"
+                        >
+                          {service.cta}
+                        </a>
 
-                      <a
-                        href={service.href}
-                        aria-label={service.cta}
-                        className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5848f4] text-white shadow-md shadow-indigo-500/35 transition duration-300 hover:scale-105 hover:bg-[#4636e3]"
-                      >
-                        <IconArrowRight className="h-4 w-4" />
-                      </a>
-                    </div>
-                  </article>
+                        <a
+                          href={service.href}
+                          aria-label={service.cta}
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5848f4] text-white shadow-md shadow-indigo-500/35 transition duration-300 hover:scale-105 hover:bg-[#4636e3]"
+                        >
+                          <IconArrowRight className="h-4 w-4" />
+                        </a>
+                      </div>
+                    </article>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Destacado Interactivo: Implementación de Inteligencia Artificial a la Medida */}
+          <section
+            id="solucion-ia"
+            data-reveal
+            className="mx-auto mt-10 max-w-6xl px-4 sm:mt-12 sm:px-6"
+          >
+            <div className="crescendo-navy-banner relative overflow-hidden rounded-3xl p-6 text-white ring-1 ring-white/10 shadow-2xl shadow-black/35 sm:p-10 lg:p-12">
+              <div
+                data-parallax-section="-0.18"
+                className="parallax-tech-grid pointer-events-none absolute -inset-16 opacity-60"
+              />
+              <div
+                data-parallax-section="0.2"
+                data-parallax-x="-0.1"
+                className="pointer-events-none absolute -right-12 -top-12 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl"
+              />
+
+              <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
+                <div className="lg:col-span-5">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#60a5fa]/30 bg-[#3b82f6]/15 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#60a5fa]">
+                    <IconSparklesBrain className="h-4 w-4 shrink-0" />
+                    <span>Servicio Personalizado de IA</span>
+                  </div>
+
+                  <h2 className="font-display mb-4 text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl lg:text-[34px]">
+                    ¿Necesitas Inteligencia Artificial en tu{" "}
+                    <span className="crescendo-text-gradient">Negocio o Proyecto</span>?
+                  </h2>
+
+                  <p className="mb-6 text-sm leading-relaxed text-slate-200/90 sm:text-base">
+                    Platícanos cómo operan tus procesos y qué necesitas resolver. No importa el giro
+                    de tu empresa: diseñamos, integramos y ponemos en marcha herramientas de IA
+                    adaptadas a tus flujos reales de trabajo.
+                  </p>
+
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openProjectChat(
+                          "Hola, me interesa implementar Inteligencia Artificial en mi proyecto. Mis necesidades son: ",
+                        )
+                      }
+                      className="crescendo-btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-full px-7 py-3.5 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(93,74,255,0.45)] transition duration-300 hover:-translate-y-0.5 sm:w-auto"
+                    >
+                      <span>Cuéntanos tu Proyecto IA</span>
+                      <IconArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
-              ))}
+
+                <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:col-span-7">
+                  {AI_SECTORS.map((sector) => (
+                    <button
+                      key={sector.title}
+                      type="button"
+                      onClick={() =>
+                        openProjectChat(
+                          `Hola, me gustaría implementar IA para ${sector.title}. Necesito ayuda con: `,
+                        )
+                      }
+                      className="group flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition duration-300 hover:-translate-y-0.5 hover:border-[#60a5fa]/50 hover:bg-white/[0.08]"
+                    >
+                      <div>
+                        <div className="mb-1.5 flex items-center justify-between gap-2">
+                          <h3 className="font-display text-sm font-bold text-white group-hover:text-[#60a5fa]">
+                            {sector.title}
+                          </h3>
+                          <IconArrowRight className="h-3.5 w-3.5 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-[#60a5fa]" />
+                        </div>
+                        <p className="text-xs leading-relaxed text-slate-300/90">{sector.detail}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
 

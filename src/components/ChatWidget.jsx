@@ -74,6 +74,7 @@ function ChatWidget() {
   const messagesEndRef = useRef(null);
   const nameInputRef = useRef(null);
   const contactInputRef = useRef(null);
+  const messageInputRef = useRef(null);
   const typingStartTimeoutRef = useRef(null);
   const typingRevealTimeoutRef = useRef(null);
 
@@ -92,10 +93,30 @@ function ChatWidget() {
   };
 
   useEffect(() => {
+    const handleOpenChatEvent = (event) => {
+      const prefill = event?.detail?.prefillMessage;
+      setIsOpen(true);
+      setErrorMsg("");
+      if (typeof prefill === "string" && prefill.trim()) {
+        setMensaje(prefill);
+      }
+      window.setTimeout(() => {
+        if (!visitorInfo.nombre.trim()) {
+          nameInputRef.current?.focus();
+        } else if (!visitorInfo.contacto.trim()) {
+          contactInputRef.current?.focus();
+        } else {
+          messageInputRef.current?.focus();
+        }
+      }, 120);
+    };
+
+    window.addEventListener("etronic:open-chat", handleOpenChatEvent);
     return () => {
+      window.removeEventListener("etronic:open-chat", handleOpenChatEvent);
       clearTypingTimers();
     };
-  }, []);
+  }, [visitorInfo.nombre, visitorInfo.contacto]);
 
   // Carga inicial e intervalo de sincronización mientras la ventana de chat está abierta
   useEffect(() => {
@@ -410,6 +431,7 @@ function ChatWidget() {
             {/* Barra inferior fija para escribir mensaje */}
             <div className=" flex shrink-0 items-center gap-2 border-t border-white/10 bg-[#04091c] p-3">
               <input
+                ref={messageInputRef}
                 type="text"
                 value={mensaje}
                 onChange={(e) => setMensaje(e.target.value)}

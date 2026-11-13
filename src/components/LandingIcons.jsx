@@ -234,6 +234,35 @@ export function IconSend({ className = "h-4 w-4" }) {
   );
 }
 
+export function IconSparklesBrain({ className = "h-6 w-6" }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.8 15.9 9 18.75l-.8-2.85a4.5 4.5 0 0 0-3.1-3.1L2.25 12l2.85-.8a4.5 4.5 0 0 0 3.1-3.1L9 5.25l.8 2.85a4.5 4.5 0 0 0 3.1 3.1l2.85.8-2.85.8a4.5 4.5 0 0 0-3.1 3.1Z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M18.25 8.5 17.8 10l-.45-1.5a2.2 2.2 0 0 0-1.55-1.55L14.3 6.5l1.5-.45a2.2 2.2 0 0 0 1.55-1.55L17.8 3l.45 1.5a2.2 2.2 0 0 0 1.55 1.55l1.5.45-1.5.45a2.2 2.2 0 0 0-1.55 1.55Z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16.5 20.25 16.2 19l-.3 1.25a1.5 1.5 0 0 1-1.15 1.15L13.5 21.7l1.25.3a1.5 1.5 0 0 1 1.15 1.15l.3 1.25.3-1.25a1.5 1.5 0 0 1 1.15-1.15l1.25-.3-1.25-.3a1.5 1.5 0 0 1-1.15-1.15Z"
+      />
+    </svg>
+  );
+}
+
 export function CardWaveDecor({ className = "" }) {
   return (
     <svg
