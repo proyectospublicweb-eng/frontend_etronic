@@ -123,79 +123,6 @@ function ServiceTabIcon({ order, className = "h-5 w-5" }) {
   );
 }
 
-function PlannerMilestoneStrip({ activeOrder, totalSelected }) {
-  const milestones = [
-    {
-      label: "1. Servicio Activo",
-      sub: `Pestaña 0${activeOrder} de 0${PLANNER_SERVICES.length}`,
-      state: "done",
-    },
-    {
-      label: "2. Selección de Módulos",
-      sub: totalSelected > 0 ? `${totalSelected} activadas` : "Marca tus procesos",
-      state: totalSelected > 0 ? "active" : "pending",
-    },
-    {
-      label: "3. Enviar Configuración",
-      sub: totalSelected > 0 ? "Listo para enviar o PDF" : "Paso final",
-      state: totalSelected > 0 ? "done" : "pending",
-    },
-  ];
-
-  return (
-    <div className="relative z-10 mb-6 rounded-2xl border border-white/[0.08] bg-[#040c29]/80 px-4 py-3.5 sm:px-6 sm:py-4">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-1.5">
-        <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-300">
-          Ruta de Configuración
-        </span>
-        <span className="text-[11px] font-semibold text-[#38bdf8]">
-          {totalSelected > 0 ? "Configuración en curso" : "Elige funcionalidades"}
-        </span>
-      </div>
-
-      <div className="relative grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-2">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-[16.6%] right-[16.6%] top-3.5 hidden h-px bg-gradient-to-r from-[#fb6b5b]/60 via-[#2dd4bf]/70 to-[#8b7af9]/60 sm:block"
-        />
-
-        {milestones.map((step, idx) => {
-          const isGlowing = step.state === "active";
-          const isDone = step.state === "done";
-          const nodeClass = isGlowing
-            ? "border-[#2dd4bf] bg-[#0f3d3e] text-[#5eead4] shadow-[0_0_16px_rgba(45,212,191,0.75)]"
-            : isDone
-              ? idx === 0
-                ? "border-[#fb6b5b] bg-[#fb6b5b]/20 text-[#fda4af]"
-                : "border-[#16c47f] bg-[#16c47f]/20 text-[#6ee7b7]"
-              : "border-white/20 bg-[#061238] text-slate-400";
-
-          return (
-            <div
-              key={step.label}
-              className="relative z-10 flex flex-row items-center gap-3 text-left sm:flex-col sm:items-center sm:gap-0 sm:text-center"
-            >
-              <span
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-[11px] font-extrabold transition ${nodeClass}`}
-              >
-                {isDone ? "✓" : idx + 1}
-              </span>
-              <div className="min-w-0 sm:mt-1.5">
-                <span className="block text-xs font-bold leading-tight text-white">
-                  {step.label}
-                </span>
-                <span className="mt-0.5 block text-[11px] leading-tight text-slate-400">
-                  {step.sub}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function OverallProgressRing({ percentage, selectedCount, totalCount }) {
   const radius = 54;
   const circumference = 2 * Math.PI * radius;
@@ -442,52 +369,6 @@ function ProcessChecklistGroup({
   );
 }
 
-function PlannerInsightBar({ selectedCount, totalCount }) {
-  const message =
-    selectedCount === 0
-      ? "Selecciona funcionalidades en cualquiera de los 3 módulos para calcular tu avance y generar un resumen ejecutivo descargable en PDF."
-      : `Llevas ${selectedCount} de ${totalCount} funcionalidades seleccionadas en el catálogo. Puedes descargar tu resumen en PDF o enviarlo directo por chat para recibir cotización.`;
-
-  return (
-    <div className="relative z-10 mt-6 flex flex-col items-start justify-between gap-3 overflow-hidden rounded-2xl border border-white/[0.09] bg-[#040c29]/90 px-4 py-3.5 sm:flex-row sm:items-center sm:px-5">
-      <div className="flex items-start gap-3 sm:items-center">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#18b8d8]/20 text-[#38bdf8] ring-1 ring-[#38bdf8]/40">
-          <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
-            <path d="M12 2l2.1 6.4L20.5 10.5l-6.4 2.1L12 19l-2.1-6.4-6.4-2.1 6.4-2.1L12 2z" />
-          </svg>
-        </span>
-        <div>
-          <span className="mr-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#38bdf8]">
-            Insight
-          </span>
-          <span className="text-xs leading-relaxed text-slate-200">{message}</span>
-        </div>
-      </div>
-
-      {/* Onda sutil derecha igual que la referencia */}
-      <svg
-        viewBox="0 0 180 28"
-        fill="none"
-        className="hidden h-7 w-40 shrink-0 opacity-65 md:block"
-        aria-hidden="true"
-      >
-        <path
-          d="M2 20 C 30 4, 60 26, 90 14 C 120 2, 150 24, 178 10"
-          stroke="#38bdf8"
-          strokeWidth="1.6"
-          strokeDasharray="2 4"
-        />
-        <path
-          d="M2 12 C 35 26, 65 4, 95 16 C 125 28, 152 6, 178 18"
-          stroke="#8b7af9"
-          strokeWidth="1.2"
-          strokeDasharray="2 5"
-        />
-      </svg>
-    </div>
-  );
-}
-
 function ProjectPlannerSection({ sectionRef, onClose }) {
   const tabListRef = useRef(null);
   const nameInputRef = useRef(null);
@@ -544,7 +425,6 @@ function ProjectPlannerSection({ sectionRef, onClose }) {
     [activeServiceId],
   );
 
-  const activeAllTaskIds = useMemo(() => getServiceAllTaskIds(activeService), [activeService]);
   const activeSelectedIds = useMemo(
     () => selectedTasksByService[activeService.id] || [],
     [selectedTasksByService, activeService.id],
@@ -593,12 +473,6 @@ function ProjectPlannerSection({ sectionRef, onClose }) {
 
     const merged = Array.from(new Set([...activeSelectedIds, ...procIds]));
     updateActiveServiceTasks(merged);
-  };
-
-  const handleSelectAllActive = () => {
-    const allChecked =
-      activeAllTaskIds.length > 0 && activeSelectedIds.length === activeAllTaskIds.length;
-    updateActiveServiceTasks(allChecked ? [] : activeAllTaskIds);
   };
 
   const handleToggleCollapse = (processId) => {
@@ -960,12 +834,6 @@ function ProjectPlannerSection({ sectionRef, onClose }) {
           </div>
         </div>
 
-        {/* Ruta de Hitos estilo Key Milestones */}
-        <PlannerMilestoneStrip
-          activeOrder={activeService.order}
-          totalSelected={totalSelectedAcrossServices}
-        />
-
         {/* Cuerpo Principal: Lista de Procesos + Dashboard de Resumen */}
         <div
           id={`planner-panel-${activeService.id}`}
@@ -975,32 +843,6 @@ function ProjectPlannerSection({ sectionRef, onClose }) {
         >
           {/* Columna Izquierda: Procesos y Tareas */}
           <div className="space-y-3.5 lg:col-span-8">
-            <div className="flex flex-col justify-between gap-3 rounded-2xl border border-white/[0.08] bg-[#040c29]/85 p-4 sm:flex-row sm:items-center">
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#38bdf8]">
-                  Catálogo de Funcionalidades
-                </p>
-                <h3 className="font-display mt-0.5 text-base font-extrabold text-white sm:text-lg">
-                  {activeService.name}
-                </h3>
-                <p className="mt-0.5 text-xs leading-relaxed text-slate-300">
-                  {activeService.subtitle}
-                </p>
-              </div>
-
-              {activeAllTaskIds.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handleSelectAllActive}
-                  className="shrink-0 self-start rounded-xl border border-[#38bdf8]/40 bg-[#38bdf8]/15 px-4 py-2 text-xs font-bold text-[#93c5fd] transition hover:border-[#38bdf8] hover:bg-[#38bdf8]/25 hover:text-white sm:self-center"
-                >
-                  {activeSelectedIds.length === activeAllTaskIds.length
-                    ? "Desmarcar todo"
-                    : "Seleccionar todo"}
-                </button>
-              )}
-            </div>
-
             {activeService.processes.map((process, idx) => {
               const prevGroup = idx > 0 ? activeService.processes[idx - 1].group : null;
               const showGroupHeader = Boolean(process.group && process.group !== prevGroup);
@@ -1139,12 +981,6 @@ function ProjectPlannerSection({ sectionRef, onClose }) {
             </div>
           </aside>
         </div>
-
-        {/* Barra Inferior estilo Insight */}
-        <PlannerInsightBar
-          selectedCount={totalSelectedAcrossServices}
-          totalCount={totalCatalogTasks}
-        />
       </div>
 
       {/* Notificación flotante de confirmación de envío */}
