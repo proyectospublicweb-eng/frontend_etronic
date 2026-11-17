@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 
 import LandingPage from "./pages/LandingPage.jsx";
+import PlannerPage from "./pages/PlannerPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import AdminDashboardPage from "./pages/AdminDashboardPage.jsx";
 import AdminRoute from "./AdminRoute.jsx";
@@ -13,6 +14,9 @@ function App() {
         <Routes>
           {/* Sitio público */}
           <Route path="/" element={<LandingPage />} />
+
+          {/* Planificador de Proyecto en página independiente */}
+          <Route path="/planificador" element={<PlannerPage />} />
 
           {/* Inicio de sesión administrativo */}
           <Route path="/login" element={<LoginPage />} />

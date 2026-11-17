@@ -14,6 +14,11 @@ export const PLANNER_SERVICES = [
         id: "wm-planning",
         number: "1",
         title: "Planificación y Gestión de Proyectos",
+        previewImage: "/images/planner-wm-1-planning.jpg",
+        previewAlt:
+          "Ejemplo visual de tablero de planificación estilo monday.com con grupos, estados, subtareas, dependencias e hitos",
+        previewCaption:
+          "Tableros organizados por fases con columnas de responsables, estados cromáticos, subtareas, dependencias e hitos.",
         tasks: [
           {
             id: "wm-structured-boards",
@@ -51,6 +56,11 @@ export const PLANNER_SERVICES = [
         id: "wm-views",
         number: "2",
         title: "Visualización del Trabajo (Vistas)",
+        previewImage: "/images/planner-wm-2-views.jpg",
+        previewAlt:
+          "Ejemplo visual de vistas Kanban, Gantt, Cronograma y Calendario estilo monday.com",
+        previewCaption:
+          "Vistas dinámicas de un mismo tablero: Tabla principal, tarjetas Kanban arrastrables, Gantt, Cronograma y Calendario.",
         tasks: [
           {
             id: "wm-table-view",
@@ -87,6 +97,11 @@ export const PLANNER_SERVICES = [
         id: "wm-resources",
         number: "3",
         title: "Gestión de Recursos y Carga de Trabajo",
+        previewImage: "/images/planner-wm-3-resources.jpg",
+        previewAlt:
+          "Ejemplo visual de carga de trabajo semanal por persona y control de tiempo estilo monday.com",
+        previewCaption:
+          "Matriz visual de carga operativa por integrante, alertas de sobrecarga y cronómetro integrado de tiempo real vs. estimado.",
         tasks: [
           {
             id: "wm-workload",
@@ -112,6 +127,11 @@ export const PLANNER_SERVICES = [
         id: "wm-portfolio",
         number: "4",
         title: "Gestión de Portafolios y Estrategia (Nivel Gerencial)",
+        previewImage: "/images/planner-wm-4-portfolio.jpg",
+        previewAlt:
+          "Ejemplo visual de dashboard ejecutivo con KPIs, OKRs, gráficos y control presupuestal estilo monday.com",
+        previewCaption:
+          "Panel ejecutivo consolidado con avance de OKRs, comparativa de presupuesto vs. gasto real y gráficos por portafolio.",
         tasks: [
           {
             id: "wm-dashboards",
@@ -137,6 +157,11 @@ export const PLANNER_SERVICES = [
         id: "wm-collaboration",
         number: "5",
         title: "Colaboración y Comunicación Interna",
+        previewImage: "/images/planner-wm-5-collaboration.jpg",
+        previewAlt:
+          "Ejemplo visual de hilos de conversación, anotaciones en archivos, documentos colaborativos y formularios estilo monday.com",
+        previewCaption:
+          "Comunicación contextual por tarea con @menciones, anotaciones sobre archivos, Docs colaborativos y WorkForms de solicitud.",
         tasks: [
           {
             id: "wm-threads",
@@ -168,6 +193,11 @@ export const PLANNER_SERVICES = [
         id: "wm-automation",
         number: "6",
         title: "Automatización y Permisos",
+        previewImage: "/images/planner-wm-6-automation.jpg",
+        previewAlt:
+          "Ejemplo visual de centro de automatizaciones sin código y matriz de permisos por rol estilo monday.com",
+        previewCaption:
+          "Reglas automáticas de estado/vencimiento sin código y control granular de permisos por tablero, columna o rol.",
         tasks: [
           {
             id: "wm-rules",
@@ -207,6 +237,11 @@ export const PLANNER_SERVICES = [
         group: "Parte A: Gestión Comercial y Ventas (monday CRM)",
         number: "A1",
         title: "Captación y Gestión de Prospectos (Leads)",
+        previewImage: "/images/planner-crm-a1-leads.jpg",
+        previewAlt:
+          "Ejemplo visual de tablero de prospectos estilo monday CRM con captura web, calificación, asignación automática y detección de duplicados",
+        previewCaption:
+          "Tablero centralizado de leads con origen multicanal, calificación por temperatura, asignación a vendedores y alertas de duplicados.",
         tasks: [
           {
             id: "crm-lead-capture",
@@ -233,6 +268,11 @@ export const PLANNER_SERVICES = [
         group: "Parte A: Gestión Comercial y Ventas (monday CRM)",
         number: "A2",
         title: "Embudo de Ventas (Sales Pipeline)",
+        previewImage: "/images/planner-crm-a2-pipeline.jpg",
+        previewAlt:
+          "Ejemplo visual de embudo Kanban comercial estilo monday CRM con montos, probabilidad de cierre y motivos de pérdida",
+        previewCaption:
+          "Pipeline visual por etapas comerciales con cálculo de pronóstico, probabilidad de cierre y registro de motivos de pérdida.",
         tasks: [
           {
             id: "crm-opportunity-board",
@@ -259,6 +299,11 @@ export const PLANNER_SERVICES = [
         group: "Parte A: Gestión Comercial y Ventas (monday CRM)",
         number: "A3",
         title: "Gestión de Cuentas, Contactos y Actividad",
+        previewImage: "/images/planner-crm-a3-accounts.jpg",
+        previewAlt:
+          "Ejemplo visual de ficha 360 de cuenta, contactos vinculados, historial cronológico, correos sincronizados y cotizaciones PDF estilo monday CRM",
+        previewCaption:
+          "Ficha 360° de empresa con contactos vinculados, bitácora unificada de llamadas/correos con rastreo y cotizaciones PDF.",
         tasks: [
           {
             id: "crm-directory",
@@ -291,6 +336,11 @@ export const PLANNER_SERVICES = [
         group: "Parte A: Gestión Comercial y Ventas (monday CRM)",
         number: "A4",
         title: "Posventa y Analítica Comercial",
+        previewImage: "/images/planner-crm-a4-postsale.jpg",
+        previewAlt:
+          "Ejemplo visual de transición automática venta a operación y analítica comercial estilo monday CRM",
+        previewCaption:
+          "Automatización de venta ganada a proyecto operativo junto con embudos de conversión y cumplimiento de metas por vendedor.",
         tasks: [
           {
             id: "crm-sales-to-ops",
@@ -311,6 +361,11 @@ export const PLANNER_SERVICES = [
         group: "Parte B: Soporte Técnico y Atención al Cliente (monday service)",
         number: "B1",
         title: "Recepción y Creación de Tickets",
+        previewImage: "/images/planner-svc-b1-tickets.jpg",
+        previewAlt:
+          "Ejemplo visual de portal de autoservicio, formularios de incidencias y conversión de correos a tickets estilo monday service",
+        previewCaption:
+          "Portal web de autoservicio, formularios con adjuntos y bandeja compartida que convierte correos en tickets numerados.",
         tasks: [
           {
             id: "svc-self-portal",
@@ -337,6 +392,11 @@ export const PLANNER_SERVICES = [
         group: "Parte B: Soporte Técnico y Atención al Cliente (monday service)",
         number: "B2",
         title: "Clasificación, Enrutamiento y SLA",
+        previewImage: "/images/planner-svc-b2-routing.jpg",
+        previewAlt:
+          "Ejemplo visual de clasificación por impacto, enrutamiento inteligente a agentes y temporizadores SLA estilo monday service",
+        previewCaption:
+          "Etiquetado por categoría e impacto, asignación automática a especialistas y temporizadores SLA con alertas preventivas.",
         tasks: [
           {
             id: "svc-prioritization",
@@ -363,6 +423,11 @@ export const PLANNER_SERVICES = [
         group: "Parte B: Soporte Técnico y Atención al Cliente (monday service)",
         number: "B3",
         title: "Resolución y Gestión del Conocimiento",
+        previewImage: "/images/planner-svc-b3-resolution.jpg",
+        previewAlt:
+          "Ejemplo visual de flujo de estados del ticket, respuestas rápidas macros y base de conocimiento estilo monday service",
+        previewCaption:
+          "Flujo guiado de estatus del ticket, respuestas rápidas (macros) y artículos integrados de base de conocimiento.",
         tasks: [
           {
             id: "svc-status-flow",
@@ -389,6 +454,11 @@ export const PLANNER_SERVICES = [
         group: "Parte B: Soporte Técnico y Atención al Cliente (monday service)",
         number: "B4",
         title: "Calidad y Métricas de Servicio",
+        previewImage: "/images/planner-svc-b4-quality.jpg",
+        previewAlt:
+          "Ejemplo visual de encuestas de satisfacción CSAT y reportes de soporte técnico estilo monday service",
+        previewCaption:
+          "Medición automática de satisfacción CSAT, volumen diario de tickets, tiempos de solución y desempeño por agente.",
         tasks: [
           {
             id: "svc-csat",
@@ -422,6 +492,11 @@ export const PLANNER_SERVICES = [
         group: "Parte A: Paneles de Control y Analítica (Dashboards)",
         number: "A1",
         title: "Widgets de Visualización y Métricas",
+        previewImage: "/images/planner-dash-a1-widgets.jpg",
+        previewAlt:
+          "Ejemplo visual de widgets analíticos estilo monday Dashboards con gráficos, tarjetas KPI, batería de progreso y tabla consolidada",
+        previewCaption:
+          "Gráficos comparativos, contadores KPI, barra de batería segmentada por avance y tabla consolidada de prioridades.",
         tasks: [
           {
             id: "dash-charts",
@@ -454,6 +529,11 @@ export const PLANNER_SERVICES = [
         group: "Parte A: Paneles de Control y Analítica (Dashboards)",
         number: "A2",
         title: "Consolidación y Filtros Dinámicos",
+        previewImage: "/images/planner-dash-a2-consolidation.jpg",
+        previewAlt:
+          "Ejemplo visual de conexión multitablero, filtros interactivos en tiempo real y metas vs resultados estilo monday Dashboards",
+        previewCaption:
+          "Unificación de múltiples tableros con filtros dinámicos en tiempo real y comparativa visual de metas frente a resultados.",
         tasks: [
           {
             id: "dash-multi-board",
@@ -480,6 +560,11 @@ export const PLANNER_SERVICES = [
         group: "Parte A: Paneles de Control y Analítica (Dashboards)",
         number: "A3",
         title: "Exportación y Distribución de Reportes",
+        previewImage: "/images/planner-dash-a3-export.jpg",
+        previewAlt:
+          "Ejemplo visual de exportación a PDF y Excel, envío programado por correo y enlaces de solo lectura estilo monday Dashboards",
+        previewCaption:
+          "Descarga directa a PDF/Excel, envío automático programado a dirección y enlaces compartibles de solo lectura.",
         tasks: [
           {
             id: "dash-pdf-excel",
@@ -506,6 +591,11 @@ export const PLANNER_SERVICES = [
         group: "Parte B: Ajustes, Seguridad y Gobernanza del Sistema",
         number: "B1",
         title: "Gestión de Usuarios, Equipos y Roles",
+        previewImage: "/images/planner-adm-b1-users.jpg",
+        previewAlt:
+          "Ejemplo visual de directorio de usuarios, roles del sistema, SSO corporativo y autenticación 2FA estilo monday.com",
+        previewCaption:
+          "Directorio por departamentos, perfiles de rol, inicio único SSO con Google/Microsoft 365 y seguridad 2FA.",
         tasks: [
           {
             id: "adm-user-directory",
@@ -537,6 +627,11 @@ export const PLANNER_SERVICES = [
         group: "Parte B: Ajustes, Seguridad y Gobernanza del Sistema",
         number: "B2",
         title: "Permisos Granulares (Control de Privacidad)",
+        previewImage: "/images/planner-adm-b2-permissions.jpg",
+        previewAlt:
+          "Ejemplo visual de espacios de trabajo públicos, privados y compartibles con permisos por columna y por fila estilo monday.com",
+        previewCaption:
+          "Tableros públicos, privados o compartibles con bloqueo de columnas sensibles y edición restringida por fila asignada.",
         tasks: [
           {
             id: "adm-workspace-types",
@@ -563,6 +658,11 @@ export const PLANNER_SERVICES = [
         group: "Parte B: Ajustes, Seguridad y Gobernanza del Sistema",
         number: "B3",
         title: "Personalización y Marca Blanca (Branding)",
+        previewImage: "/images/planner-adm-b3-branding.jpg",
+        previewAlt:
+          "Ejemplo visual de personalización de logotipo, paleta corporativa, dominio propio y catálogos maestros estilo monday.com",
+        previewCaption:
+          "Identidad visual con logotipo, colores corporativos y dominio propio junto con catálogos maestros centralizados.",
         tasks: [
           {
             id: "adm-visual-identity",
@@ -583,6 +683,11 @@ export const PLANNER_SERVICES = [
         group: "Parte B: Ajustes, Seguridad y Gobernanza del Sistema",
         number: "B4",
         title: "Auditoría, Respaldos y Mantenimiento",
+        previewImage: "/images/planner-adm-b4-audit.jpg",
+        previewAlt:
+          "Ejemplo visual de registro de auditoría, papelera de reciclaje y respaldos automatizados estilo monday.com",
+        previewCaption:
+          "Bitácora detallada de cambios, papelera para restaurar elementos eliminados y copias de seguridad automáticas.",
         tasks: [
           {
             id: "adm-audit-log",

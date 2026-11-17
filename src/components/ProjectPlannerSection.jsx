@@ -236,11 +236,13 @@ function ProcessChecklistGroup({
   onToggleCollapse,
   onToggleTask,
   onToggleProcessAll,
+  onPreviewImage,
 }) {
   const totalCount = process.tasks.length;
   const selectedCount = process.tasks.filter((task) => selectedSet.has(task.id)).length;
   const allProcessSelected = totalCount > 0 && selectedCount === totalCount;
   const accent = PROCESS_ACCENTS[accentIndex % PROCESS_ACCENTS.length];
+  const hasPreview = Boolean(process.previewImage);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/[0.09] bg-[#040c29]/80 transition hover:border-white/20">
@@ -254,7 +256,7 @@ function ProcessChecklistGroup({
           type="button"
           onClick={() => onToggleCollapse(process.id)}
           aria-expanded={!isCollapsed}
-          className="flex w-full min-w-0 items-center gap-2.5 text-left sm:w-auto sm:flex-1 sm:gap-3"
+          className="flex w-full min-w-0 items-center gap-2.5 text-left md:w-auto md:flex-1 md:gap-3"
         >
           <span
             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border text-xs font-extrabold ${accent.tile}`}
@@ -262,7 +264,7 @@ function ProcessChecklistGroup({
             {process.number}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="font-display block text-sm font-bold leading-snug text-white sm:text-[15px]">
+            <span className="font-display block text-[13px] font-bold leading-snug text-white sm:text-[15px]">
               {process.title}
             </span>
             <span className="mt-0.5 block text-[11px] text-slate-400">
@@ -270,7 +272,7 @@ function ProcessChecklistGroup({
             </span>
           </span>
           <span
-            className={`shrink-0 rounded-md px-2.5 py-1 text-[11px] font-bold ${
+            className={`shrink-0 rounded-md px-2 py-1 text-[11px] font-bold sm:px-2.5 ${
               selectedCount > 0 ? accent.pillActive : "bg-white/[0.08] text-slate-300"
             }`}
           >
@@ -278,7 +280,42 @@ function ProcessChecklistGroup({
           </span>
         </button>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-2.5">
+          {hasPreview && (
+            <button
+              type="button"
+              onClick={() => onPreviewImage(process)}
+              aria-label={`Ampliar ejemplo visual de ${process.title}`}
+              title="Clic para ampliar imagen de ejemplo"
+              className="group/thumb relative h-11 w-16 shrink-0 overflow-hidden rounded-xl border border-white/15 bg-[#03091f] shadow-md transition hover:border-[#38bdf8] hover:shadow-[0_0_16px_rgba(56,189,248,0.3)] sm:h-12 sm:w-20 md:h-14 md:w-24"
+            >
+              <img
+                src={process.previewImage}
+                alt={process.previewAlt || `Ejemplo visual de ${process.title}`}
+                loading="lazy"
+                className="h-full w-full object-cover transition duration-300 group-hover/thumb:scale-105"
+              />
+              <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#020614]/80 via-transparent to-transparent opacity-75 transition group-hover/thumb:opacity-95" />
+              <span className="pointer-events-none absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-md border border-white/25 bg-[#040c29]/90 text-[#38bdf8] shadow transition group-hover/thumb:scale-110 group-hover/thumb:bg-[#38bdf8] group-hover/thumb:text-[#020614]">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-3 w-3"
+                  aria-hidden="true"
+                >
+                  <polyline points="15 3 21 3 21 9" />
+                  <polyline points="9 21 3 21 3 15" />
+                  <line x1="21" x2="14" y1="3" y2="10" />
+                  <line x1="3" x2="10" y1="21" y2="14" />
+                </svg>
+              </span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => onToggleProcessAll(process)}
@@ -383,6 +420,7 @@ function ProjectPlannerSection({ sectionRef, onClose }) {
   const [contactErrors, setContactErrors] = useState({ nombre: false, telefonoWhatsapp: false });
   const [selectedTasksByService, setSelectedTasksByService] = useState({});
   const [expandedProcesses, setExpandedProcesses] = useState({});
+  const [previewProcessId, setPreviewProcessId] = useState(null);
   const [formError, setFormError] = useState("");
   const [saveSuccessMsg, setSaveSuccessMsg] = useState("");
   const [showSentToast, setShowSentToast] = useState(false);
@@ -424,6 +462,40 @@ function ProjectPlannerSection({ sectionRef, onClose }) {
     () => PLANNER_SERVICES.find((srv) => srv.id === activeServiceId) || PLANNER_SERVICES[0],
     [activeServiceId],
   );
+
+  const previewableProcesses = useMemo(
+    () => activeService.processes.filter((proc) => Boolean(proc.previewImage)),
+    [activeService],
+  );
+
+  const previewIndex = useMemo(
+    () => previewableProcesses.findIndex((proc) => proc.id === previewProcessId),
+    [previewableProcesses, previewProcessId],
+  );
+
+  const activePreviewProcess = previewIndex >= 0 ? previewableProcesses[previewIndex] : null;
+
+  useEffect(() => {
+    if (!activePreviewProcess) return undefined;
+
+    const handleLightboxKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setPreviewProcessId(null);
+        return;
+      }
+      if (e.key === "ArrowRight" && previewableProcesses.length > 1) {
+        const nextIdx = (previewIndex + 1) % previewableProcesses.length;
+        setPreviewProcessId(previewableProcesses[nextIdx].id);
+      } else if (e.key === "ArrowLeft" && previewableProcesses.length > 1) {
+        const prevIdx =
+          (previewIndex - 1 + previewableProcesses.length) % previewableProcesses.length;
+        setPreviewProcessId(previewableProcesses[prevIdx].id);
+      }
+    };
+
+    window.addEventListener("keydown", handleLightboxKeyDown);
+    return () => window.removeEventListener("keydown", handleLightboxKeyDown);
+  }, [activePreviewProcess, previewIndex, previewableProcesses]);
 
   const activeSelectedIds = useMemo(
     () => selectedTasksByService[activeService.id] || [],
@@ -647,6 +719,76 @@ function ProjectPlannerSection({ sectionRef, onClose }) {
           </button>
         </div>
 
+        {/* Datos de Contacto del Cliente sobre las Pestañas de Servicio */}
+        <div className="relative z-10 mb-5 rounded-2xl border border-white/[0.09] bg-[#040c29]/85 p-4 sm:p-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#38bdf8]">
+              Tus Datos de Contacto
+            </p>
+            <span className="text-[11px] text-slate-400">
+              Nombre obligatorio para guardar tu registro
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+            <div className="min-w-0">
+              <label
+                htmlFor="planner-client-name"
+                className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-300"
+              >
+                Nombre <span className="text-rose-400">*</span>
+              </label>
+              <input
+                ref={nameInputRef}
+                id="planner-client-name"
+                type="text"
+                value={clientName}
+                onChange={(e) => {
+                  setClientName(e.target.value);
+                  setContactErrors((prev) => ({ ...prev, nombre: false }));
+                  setFormError("");
+                }}
+                placeholder="Tu nombre completo o empresa"
+                aria-invalid={contactErrors.nombre}
+                className={`w-full rounded-xl border bg-[#03091f]/80 px-3.5 py-2.5 text-base text-white placeholder-slate-400 outline-none transition focus:bg-[#061238] sm:text-sm ${
+                  contactErrors.nombre
+                    ? "border-rose-400/85 ring-2 ring-rose-500/25 focus:border-rose-400"
+                    : "border-white/15 focus:border-[#38bdf8]"
+                }`}
+                required
+              />
+            </div>
+
+            <div className="min-w-0">
+              <label
+                htmlFor="planner-client-whatsapp"
+                className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-300"
+              >
+                Teléfono-Whatsapp / Correo{" "}
+                <span className="font-normal lowercase text-slate-400">(opcional)</span>
+              </label>
+              <input
+                ref={whatsappInputRef}
+                id="planner-client-whatsapp"
+                type="text"
+                value={clientWhatsapp}
+                onChange={(e) => {
+                  setClientWhatsapp(e.target.value);
+                  setContactErrors((prev) => ({ ...prev, telefonoWhatsapp: false }));
+                  setFormError("");
+                }}
+                placeholder="Ej. correo@empresa.com o 55 1234 5678"
+                aria-invalid={contactErrors.telefonoWhatsapp}
+                className={`w-full rounded-xl border bg-[#03091f]/80 px-3.5 py-2.5 text-base text-white placeholder-slate-400 outline-none transition focus:bg-[#061238] sm:text-sm ${
+                  contactErrors.telefonoWhatsapp
+                    ? "border-rose-400/85 ring-2 ring-rose-500/25 focus:border-rose-400"
+                    : "border-white/15 focus:border-[#38bdf8]"
+                }`}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Barra de Pestañas estilo tarjetas KPI */}
         <div
           ref={tabListRef}
@@ -764,76 +906,6 @@ function ProjectPlannerSection({ sectionRef, onClose }) {
           })}
         </div>
 
-        {/* Datos de Contacto del Cliente antes de Ruta de Configuración */}
-        <div className="relative z-10 mb-5 rounded-2xl border border-white/[0.09] bg-[#040c29]/85 p-4 sm:p-5">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#38bdf8]">
-              Tus Datos de Contacto
-            </p>
-            <span className="text-[11px] text-slate-400">
-              Nombre obligatorio para guardar tu registro
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-            <div className="min-w-0">
-              <label
-                htmlFor="planner-client-name"
-                className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-300"
-              >
-                Nombre <span className="text-rose-400">*</span>
-              </label>
-              <input
-                ref={nameInputRef}
-                id="planner-client-name"
-                type="text"
-                value={clientName}
-                onChange={(e) => {
-                  setClientName(e.target.value);
-                  setContactErrors((prev) => ({ ...prev, nombre: false }));
-                  setFormError("");
-                }}
-                placeholder="Tu nombre completo o empresa"
-                aria-invalid={contactErrors.nombre}
-                className={`w-full rounded-xl border bg-[#03091f]/80 px-3.5 py-2.5 text-base text-white placeholder-slate-400 outline-none transition focus:bg-[#061238] sm:text-sm ${
-                  contactErrors.nombre
-                    ? "border-rose-400/85 ring-2 ring-rose-500/25 focus:border-rose-400"
-                    : "border-white/15 focus:border-[#38bdf8]"
-                }`}
-                required
-              />
-            </div>
-
-            <div className="min-w-0">
-              <label
-                htmlFor="planner-client-whatsapp"
-                className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-300"
-              >
-                Teléfono-Whatsapp / Correo{" "}
-                <span className="font-normal lowercase text-slate-400">(opcional)</span>
-              </label>
-              <input
-                ref={whatsappInputRef}
-                id="planner-client-whatsapp"
-                type="text"
-                value={clientWhatsapp}
-                onChange={(e) => {
-                  setClientWhatsapp(e.target.value);
-                  setContactErrors((prev) => ({ ...prev, telefonoWhatsapp: false }));
-                  setFormError("");
-                }}
-                placeholder="Ej. correo@empresa.com o 55 1234 5678"
-                aria-invalid={contactErrors.telefonoWhatsapp}
-                className={`w-full rounded-xl border bg-[#03091f]/80 px-3.5 py-2.5 text-base text-white placeholder-slate-400 outline-none transition focus:bg-[#061238] sm:text-sm ${
-                  contactErrors.telefonoWhatsapp
-                    ? "border-rose-400/85 ring-2 ring-rose-500/25 focus:border-rose-400"
-                    : "border-white/15 focus:border-[#38bdf8]"
-                }`}
-              />
-            </div>
-          </div>
-        </div>
-
         {/* Cuerpo Principal: Lista de Procesos + Dashboard de Resumen */}
         <div
           id={`planner-panel-${activeService.id}`}
@@ -866,6 +938,7 @@ function ProjectPlannerSection({ sectionRef, onClose }) {
                     onToggleCollapse={handleToggleCollapse}
                     onToggleTask={handleToggleTask}
                     onToggleProcessAll={handleToggleProcessAll}
+                    onPreviewImage={(proc) => setPreviewProcessId(proc.id)}
                   />
                 </div>
               );
@@ -1009,6 +1082,93 @@ function ProjectPlannerSection({ sectionRef, onClose }) {
           >
             <IconClose className="h-4 w-4" />
           </button>
+        </div>
+      )}
+
+      {/* Visor expandido de ejemplo visual del proceso */}
+      {activePreviewProcess && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="planner-lightbox-title"
+          onClick={() => setPreviewProcessId(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center overscroll-contain bg-black/85 p-3 backdrop-blur-sm sm:p-6"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative flex max-h-[92dvh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-[#38bdf8]/40 bg-[#040c29] text-white shadow-[0_24px_80px_rgba(0,0,0,0.85)]"
+          >
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-white/10 px-4 py-3.5 sm:px-6 sm:py-4">
+              <div className="min-w-0">
+                <h3
+                  id="planner-lightbox-title"
+                  className="font-display text-sm font-extrabold leading-snug text-white sm:text-lg"
+                >
+                  {activePreviewProcess.title}
+                </h3>
+                {activePreviewProcess.previewCaption && (
+                  <p className="mt-0.5 text-xs leading-relaxed text-slate-300">
+                    {activePreviewProcess.previewCaption}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setPreviewProcessId(null)}
+                aria-label="Cerrar vista ampliada"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] text-slate-200 transition hover:border-white/35 hover:bg-white/15 hover:text-white"
+              >
+                <IconClose className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-[#020614]/90 p-2.5 sm:p-5">
+              <img
+                src={activePreviewProcess.previewImage}
+                alt={activePreviewProcess.previewAlt || activePreviewProcess.title}
+                className="max-h-[58dvh] w-auto max-w-full rounded-2xl border border-white/10 object-contain shadow-2xl sm:max-h-[65dvh]"
+              />
+            </div>
+
+            <div className="flex shrink-0 flex-col gap-3 border-t border-white/10 bg-[#040c29]/95 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+              <div className="min-w-0">
+                <span className="inline-block max-w-full rounded-lg bg-[#38bdf8]/15 px-2.5 py-1 text-[11px] font-semibold leading-snug text-[#38bdf8] ring-1 ring-[#38bdf8]/35">
+                  Esta imagen es solo una referencia visual que se muestra solo con el objetivo de
+                  obtener contexto gráfico del servicio o proceso
+                </span>
+              </div>
+
+              {previewableProcesses.length > 1 && (
+                <div className="flex w-full shrink-0 items-center justify-between gap-2 sm:w-auto sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const prevIdx =
+                        (previewIndex - 1 + previewableProcesses.length) %
+                        previewableProcesses.length;
+                      setPreviewProcessId(previewableProcesses[prevIdx].id);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/[0.05] px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-[#38bdf8]/60 hover:bg-white/10 hover:text-white"
+                  >
+                    <IconArrowRight className="h-3.5 w-3.5 rotate-180" />
+                    <span>Anterior</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextIdx = (previewIndex + 1) % previewableProcesses.length;
+                      setPreviewProcessId(previewableProcesses[nextIdx].id);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/[0.05] px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-[#38bdf8]/60 hover:bg-white/10 hover:text-white"
+                  >
+                    <span>Siguiente</span>
+                    <IconArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </section>

@@ -26,7 +26,6 @@ import {
 import { useParallaxEngine } from "../hooks/useParallaxEngine";
 import ChatWidget from "../components/ChatWidget.jsx";
 import FeatureSpotlightSection from "../components/FeatureSpotlightSection.jsx";
-import ProjectPlannerSection from "../components/ProjectPlannerSection.jsx";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -157,8 +156,8 @@ const SPECIALIZED_SERVICES = [
     description:
       "Desarrollo y personalización de plataforma digital para la gestión de espacios de trabajo, diseñada para que equipos humanos y agentes de IA colaboren, automaticen tareas manuales y gestionen proyectos en un solo lugar.",
     cta: "Planifica tu Solución",
-    href: "#planificador-proyecto",
-    action: "open-planner",
+    href: "/planificador",
+    openInNewTab: true,
   },
 ];
 
@@ -364,7 +363,6 @@ const TESTIMONIALS = [
 
 function LandingPage() {
   const pageRef = useRef(null);
-  const plannerSectionRef = useRef(null);
   const touchStartXRef = useRef(null);
   const isDesktopHoverRef = useRef(false);
   const [activeNav, setActiveNav] = useState("inicio");
@@ -373,8 +371,6 @@ function LandingPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [expandedServices, setExpandedServices] = useState({});
-  const [showProjectPlanner, setShowProjectPlanner] = useState(false);
-  const [plannerScrollTick, setPlannerScrollTick] = useState(0);
 
   const toggleServiceDescription = (serviceId) => {
     setExpandedServices((prev) => ({
@@ -383,16 +379,7 @@ function LandingPage() {
     }));
   };
 
-  useParallaxEngine(pageRef, showProjectPlanner);
-
-  useEffect(() => {
-    if (!showProjectPlanner || plannerScrollTick === 0) return;
-
-    const rafId = window.requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-    return () => window.cancelAnimationFrame(rafId);
-  }, [showProjectPlanner, plannerScrollTick]);
+  useParallaxEngine(pageRef);
 
   // Avance automático continuo cada 5s en Móvil, Tablet y Escritorio.
   // En pantallas táctiles o vistas móvil/tablet (<1024px o sin puntero fino) nunca queda bloqueado por eventos sintéticos de hover.
@@ -510,11 +497,7 @@ function LandingPage() {
       scrollTarget = "contacto";
     }
 
-    if (showProjectPlanner) {
-      handleCloseProjectPlanner(scrollTarget);
-    } else {
-      document.getElementById(scrollTarget)?.scrollIntoView({ behavior: "smooth" });
-    }
+    document.getElementById(scrollTarget)?.scrollIntoView({ behavior: "smooth" });
     setSearchOpen(false);
   };
 
@@ -528,26 +511,6 @@ function LandingPage() {
             contacto: payload?.contacto || "",
           };
     window.dispatchEvent(new CustomEvent("etronic:open-chat", { detail }));
-  };
-
-  const handleOpenProjectPlanner = () => {
-    setShowProjectPlanner(true);
-    setPlannerScrollTick((prev) => prev + 1);
-  };
-
-  const handleCloseProjectPlanner = (targetSectionId = null) => {
-    setShowProjectPlanner(false);
-    setMobileMenuOpen(false);
-    if (targetSectionId) {
-      setActiveNav(targetSectionId);
-    }
-    window.requestAnimationFrame(() => {
-      if (targetSectionId && targetSectionId !== "inicio") {
-        document.getElementById(targetSectionId)?.scrollIntoView({ behavior: "smooth" });
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    });
   };
 
   return (
@@ -566,7 +529,7 @@ function LandingPage() {
           {/* Logo ETRONIC modo oscuro */}
           <a
             href="#inicio"
-            onClick={() => handleCloseProjectPlanner("inicio")}
+            onClick={() => setActiveNav("inicio")}
             className={`${searchOpen ? "hidden sm:flex" : "flex"} shrink-0 items-center py-2`}
           >
             <img
@@ -584,12 +547,12 @@ function LandingPage() {
               className="hidden items-center gap-8 lg:flex"
             >
               {NAV_ITEMS.map((item) => {
-                const isActive = !showProjectPlanner && activeNav === item.id;
+                const isActive = activeNav === item.id;
                 return (
                   <a
                     key={item.id}
                     href={item.href}
-                    onClick={() => handleCloseProjectPlanner(item.id)}
+                    onClick={() => setActiveNav(item.id)}
                     className={`text-[14px] font-medium transition-colors duration-200 ${
                       isActive ? "text-white" : "text-slate-300/80 hover:text-white"
                     }`}
@@ -618,7 +581,7 @@ function LandingPage() {
 
                 <a
                   href="#contacto"
-                  onClick={() => handleCloseProjectPlanner("contacto")}
+                  onClick={() => setActiveNav("contacto")}
                   className="crescendo-btn-gradient hidden rounded-full px-5 py-2.5 text-[13px] font-semibold text-white shadow-lg shadow-indigo-600/30 transition duration-300 sm:inline-flex sm:items-center"
                 >
                   Contáctenos
@@ -669,12 +632,15 @@ function LandingPage() {
           <div className="border-t border-white/10 bg-[#060d24] px-6 py-4 shadow-2xl lg:hidden">
             <ul className="flex flex-col divide-y divide-white/5">
               {NAV_ITEMS.map((item) => {
-                const isActive = !showProjectPlanner && activeNav === item.id;
+                const isActive = activeNav === item.id;
                 return (
                   <li key={item.id}>
                     <a
                       href={item.href}
-                      onClick={() => handleCloseProjectPlanner(item.id)}
+                      onClick={() => {
+                        setActiveNav(item.id);
+                        setMobileMenuOpen(false);
+                      }}
                       className={`block py-3 text-sm font-medium ${
                         isActive ? "text-[#60a5fa]" : "text-slate-300"
                       }`}
@@ -687,7 +653,10 @@ function LandingPage() {
               <li className="pt-3">
                 <a
                   href="#contacto"
-                  onClick={() => handleCloseProjectPlanner("contacto")}
+                  onClick={() => {
+                    setActiveNav("contacto");
+                    setMobileMenuOpen(false);
+                  }}
                   className="crescendo-btn-gradient inline-block w-full rounded-full py-2.5 text-center text-sm font-semibold text-white"
                 >
                   Contáctenos
@@ -700,53 +669,121 @@ function LandingPage() {
 
       {/* Contenido Principal */}
       <main id="main-content">
-        {showProjectPlanner ? (
-          <div className="min-h-[calc(100vh-11rem)] bg-[#001039] pb-10 pt-6 sm:pb-14 sm:pt-10">
-            <ProjectPlannerSection
-              sectionRef={plannerSectionRef}
-              onClose={() => handleCloseProjectPlanner("inicio")}
-            />
-          </div>
-        ) : (
-          <>
-            {/* Sección Hero Oscura convertida en Slider Automático con Servicios Especializados + Parallax */}
-            <section
-              id="inicio"
-              aria-roledescription="carousel"
-              aria-label="Servicios destacados de Etronic"
-              onPointerEnter={handleHeroPointerEnter}
-              onPointerLeave={handleHeroPointerLeave}
-              onTouchStart={handleHeroTouchStart}
-              onTouchEnd={handleHeroTouchEnd}
-              onTouchCancel={handleHeroTouchCancel}
-              className="crescendo-hero-surface relative touch-pan-y overflow-hidden"
+        {/* Sección Hero Oscura convertida en Slider Automático con Servicios Especializados + Parallax */}
+        <section
+          id="inicio"
+          aria-roledescription="carousel"
+          aria-label="Servicios destacados de Etronic"
+          onPointerEnter={handleHeroPointerEnter}
+          onPointerLeave={handleHeroPointerLeave}
+          onTouchStart={handleHeroTouchStart}
+          onTouchEnd={handleHeroTouchEnd}
+          onTouchCancel={handleHeroTouchCancel}
+          className="crescendo-hero-surface relative touch-pan-y overflow-hidden"
+        >
+          {/* Capa Profunda 1: Cuadrícula tecnológica con parallax lento */}
+          <div
+            data-parallax="0.42"
+            data-parallax-mouse="-12"
+            className="parallax-tech-grid pointer-events-none absolute -inset-20 opacity-70"
+          />
+
+          {/* Capa Profunda 2: Esferas luminosas ambientales */}
+          <div
+            data-parallax="0.34"
+            data-parallax-mouse="-24"
+            className="pointer-events-none absolute -left-24 top-10 h-80 w-80 rounded-full bg-blue-600/15 blur-3xl"
+          />
+          <div
+            data-parallax="0.28"
+            data-parallax-mouse="22"
+            className="pointer-events-none absolute right-6 top-16 h-96 w-96 rounded-full bg-violet-600/20 blur-3xl"
+          />
+
+          <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-7 px-4 pb-5 pt-8 sm:gap-10 sm:px-6 sm:pb-8 sm:pt-12 lg:grid-cols-12 lg:gap-8 lg:pb-10 lg:pt-16 xl:gap-10">
+            {/* Columna Izquierda: Diapositivas de Texto con transición suave */}
+            <div
+              data-parallax="0.14"
+              data-parallax-mouse="-6"
+              data-parallax-desktop
+              className="z-10 grid min-w-0 [grid-template-areas:'slide'] lg:col-span-6"
             >
-              {/* Capa Profunda 1: Cuadrícula tecnológica con parallax lento */}
+              {HERO_SLIDES.map((slide, idx) => {
+                const isActive = currentSlide === idx;
+                return (
+                  <div
+                    key={slide.id}
+                    aria-hidden={!isActive}
+                    className={`[grid-area:slide] flex min-w-0 flex-col justify-center transition-all duration-700 ease-out ${
+                      isActive
+                        ? "pointer-events-auto translate-x-0 opacity-100"
+                        : "pointer-events-none -translate-x-5 opacity-0"
+                    }`}
+                  >
+                    <div className="mb-4 flex flex-wrap items-center gap-2 sm:gap-2.5">
+                      <p className="inline-flex max-w-full items-center gap-2 rounded-2xl border border-[#3b82f6]/30 bg-[#3b82f6]/10 px-3 py-1 text-[10px] font-semibold uppercase leading-snug tracking-[0.08em] text-[#60a5fa] sm:rounded-full sm:px-3.5 sm:text-xs sm:tracking-[0.14em]">
+                        {slide.eyebrow}
+                      </p>
+
+                      {slide.reviews && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold text-white sm:px-3 sm:text-xs">
+                          <span className="tracking-wider text-amber-400">★★★★★</span>
+                          <span className="text-slate-300">{slide.reviews}</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <h1 className="font-display mb-4 text-[28px] font-extrabold leading-[1.15] tracking-tight text-white sm:mb-5 sm:text-4xl md:text-5xl lg:text-[42px] xl:text-[52px]">
+                      {slide.titlePrefix}
+                      <span className="crescendo-text-gradient">{slide.titleHighlight}</span>
+                      {slide.titleSuffix}
+                    </h1>
+
+                    <p className="mb-6 max-w-xl text-sm leading-relaxed text-slate-300/90 sm:mb-8 sm:text-base md:text-[17px]">
+                      {slide.description}
+                    </p>
+
+                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3.5">
+                      <a
+                        href={slide.primaryHref}
+                        tabIndex={isActive ? 0 : -1}
+                        onClick={() => setActiveNav(slide.primaryNav)}
+                        className="crescendo-btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(93,74,255,0.45)] transition duration-300 hover:-translate-y-0.5 sm:w-auto sm:px-7"
+                      >
+                        <span>{slide.primaryCta}</span>
+                        <IconArrowRight className="h-4 w-4 shrink-0" />
+                      </a>
+
+                      <a
+                        href={slide.secondaryHref}
+                        tabIndex={isActive ? 0 : -1}
+                        onClick={() => setActiveNav(slide.secondaryNav)}
+                        className="inline-flex w-full items-center justify-center rounded-full border border-white/25 bg-white/[0.03] px-6 py-3.5 text-sm font-semibold text-white transition duration-300 hover:border-white/50 hover:bg-white/10 sm:w-auto sm:px-7"
+                      >
+                        {slide.secondaryCta}
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Columna Derecha: Render 3D Dinámico + Insignias Flotantes ancladas al marco 3D */}
+            <div className="relative flex min-w-0 items-center justify-center lg:col-span-6">
+              {/* Halo trasero independiente */}
               <div
-                data-parallax="0.42"
-                data-parallax-mouse="-12"
-                className="parallax-tech-grid pointer-events-none absolute -inset-20 opacity-70"
+                data-parallax="0.32"
+                data-parallax-mouse="-26"
+                className="pointer-events-none absolute h-64 w-64 rounded-full bg-indigo-500/25 blur-3xl sm:h-96 sm:w-96"
               />
 
-              {/* Capa Profunda 2: Esferas luminosas ambientales */}
-              <div
-                data-parallax="0.34"
-                data-parallax-mouse="-24"
-                className="pointer-events-none absolute -left-24 top-10 h-80 w-80 rounded-full bg-blue-600/15 blur-3xl"
-              />
-              <div
-                data-parallax="0.28"
-                data-parallax-mouse="22"
-                className="pointer-events-none absolute right-6 top-16 h-96 w-96 rounded-full bg-violet-600/20 blur-3xl"
-              />
-
-              <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-7 px-4 pb-5 pt-8 sm:gap-10 sm:px-6 sm:pb-8 sm:pt-12 lg:grid-cols-12 lg:gap-8 lg:pb-10 lg:pt-16 xl:gap-10">
-                {/* Columna Izquierda: Diapositivas de Texto con transición suave */}
+              <div className="relative mx-auto w-full max-w-[420px] sm:max-w-[470px]">
+                {/* Ventana 3D de Diapositivas */}
                 <div
-                  data-parallax="0.14"
-                  data-parallax-mouse="-6"
+                  data-parallax="0.22"
+                  data-parallax-mouse="16"
                   data-parallax-desktop
-                  className="z-10 grid min-w-0 [grid-template-areas:'slide'] lg:col-span-6"
+                  className="relative z-10 grid aspect-[4/3] w-full [grid-template-areas:'slide']"
                 >
                   {HERO_SLIDES.map((slide, idx) => {
                     const isActive = currentSlide === idx;
@@ -754,740 +791,652 @@ function LandingPage() {
                       <div
                         key={slide.id}
                         aria-hidden={!isActive}
-                        className={`[grid-area:slide] flex min-w-0 flex-col justify-center transition-all duration-700 ease-out ${
+                        className={`[grid-area:slide] h-full w-full transition-all duration-700 ease-out ${
                           isActive
-                            ? "pointer-events-auto translate-x-0 opacity-100"
-                            : "pointer-events-none -translate-x-5 opacity-0"
+                            ? "scale-100 opacity-100"
+                            : "pointer-events-none scale-95 opacity-0"
                         }`}
                       >
-                        <div className="mb-4 flex flex-wrap items-center gap-2 sm:gap-2.5">
-                          <p className="inline-flex max-w-full items-center gap-2 rounded-2xl border border-[#3b82f6]/30 bg-[#3b82f6]/10 px-3 py-1 text-[10px] font-semibold uppercase leading-snug tracking-[0.08em] text-[#60a5fa] sm:rounded-full sm:px-3.5 sm:text-xs sm:tracking-[0.14em]">
-                            {slide.eyebrow}
-                          </p>
-
-                          {slide.reviews && (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold text-white sm:px-3 sm:text-xs">
-                              <span className="tracking-wider text-amber-400">★★★★★</span>
-                              <span className="text-slate-300">{slide.reviews}</span>
-                            </span>
-                          )}
-                        </div>
-
-                        <h1 className="font-display mb-4 text-[28px] font-extrabold leading-[1.15] tracking-tight text-white sm:mb-5 sm:text-4xl md:text-5xl lg:text-[42px] xl:text-[52px]">
-                          {slide.titlePrefix}
-                          <span className="crescendo-text-gradient">{slide.titleHighlight}</span>
-                          {slide.titleSuffix}
-                        </h1>
-
-                        <p className="mb-6 max-w-xl text-sm leading-relaxed text-slate-300/90 sm:mb-8 sm:text-base md:text-[17px]">
-                          {slide.description}
-                        </p>
-
-                        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3.5">
-                          <a
-                            href={slide.primaryHref}
-                            tabIndex={isActive ? 0 : -1}
-                            onClick={() => setActiveNav(slide.primaryNav)}
-                            className="crescendo-btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(93,74,255,0.45)] transition duration-300 hover:-translate-y-0.5 sm:w-auto sm:px-7"
-                          >
-                            <span>{slide.primaryCta}</span>
-                            <IconArrowRight className="h-4 w-4 shrink-0" />
-                          </a>
-
-                          <a
-                            href={slide.secondaryHref}
-                            tabIndex={isActive ? 0 : -1}
-                            onClick={() => setActiveNav(slide.secondaryNav)}
-                            className="inline-flex w-full items-center justify-center rounded-full border border-white/25 bg-white/[0.03] px-6 py-3.5 text-sm font-semibold text-white transition duration-300 hover:border-white/50 hover:bg-white/10 sm:w-auto sm:px-7"
-                          >
-                            {slide.secondaryCta}
-                          </a>
-                        </div>
+                        <img
+                          src={slide.image}
+                          alt={slide.imageAlt}
+                          className="hero-render-mask h-full w-full rounded-2xl object-cover sm:rounded-3xl"
+                        />
                       </div>
                     );
                   })}
                 </div>
 
-                {/* Columna Derecha: Render 3D Dinámico + Insignias Flotantes ancladas al marco 3D */}
-                <div className="relative flex min-w-0 items-center justify-center lg:col-span-6">
-                  {/* Halo trasero independiente */}
+                {/* Insignia flotante inferior izquierda (compacta en móvil, expandida en tablet/desktop) */}
+                <div
+                  data-parallax="-0.08"
+                  data-parallax-mouse="30"
+                  data-parallax-desktop
+                  className="pointer-events-none absolute bottom-2.5 left-2.5 z-20 flex max-w-[calc(100%-1.25rem)] items-center gap-2 rounded-xl border border-white/15 bg-[#0b1330]/90 px-3 py-2 text-[11px] text-white shadow-2xl backdrop-blur-md sm:-left-3 sm:bottom-5 sm:gap-2.5 sm:rounded-2xl sm:px-4 sm:py-2.5 sm:text-xs lg:left-0 xl:-left-3"
+                >
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399] sm:h-2.5 sm:w-2.5" />
+                  <span className="truncate font-semibold">
+                    {HERO_SLIDES[currentSlide].floatingBottom}
+                  </span>
+                </div>
+
+                {/* Insignia flotante superior derecha (visible desde tablet sm+ para no saturar pantallas pequeñas) */}
+                <div
+                  data-parallax="-0.12"
+                  data-parallax-mouse="-24"
+                  data-parallax-desktop
+                  className="pointer-events-none absolute -right-3 top-5 z-20 hidden items-center gap-2 rounded-2xl border border-indigo-400/25 bg-[#0b1330]/85 px-4 py-2.5 text-xs text-indigo-100 shadow-2xl backdrop-blur-md sm:flex lg:right-0 xl:-right-3"
+                >
+                  <IconShieldCheck className="h-4 w-4 shrink-0 text-[#60a5fa]" />
+                  <span className="font-semibold">{HERO_SLIDES[currentSlide].floatingTop}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Controles del Slider Automático (Indicadores con área táctil amplia + Flechas Anterior/Siguiente) */}
+          <div className="relative z-20 mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 pb-6 sm:gap-4 sm:px-6 sm:pb-10">
+            <div
+              role="tablist"
+              aria-label="Seleccionar diapositiva"
+              className="flex items-center gap-1"
+            >
+              {HERO_SLIDES.map((slide, idx) => {
+                const isActive = currentSlide === idx;
+                return (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-label={`Ir a diapositiva ${idx + 1}: ${slide.imageAlt}`}
+                    onClick={() => setCurrentSlide(idx)}
+                    className="group flex items-center px-1 py-2.5"
+                  >
+                    <span
+                      className={`block h-2.5 rounded-full transition-all duration-300 ${
+                        isActive
+                          ? "crescendo-btn-gradient w-8 shadow-[0_0_12px_rgba(96,165,250,0.65)] sm:w-9"
+                          : "w-2.5 bg-white/25 group-hover:bg-white/50"
+                      }`}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+              <button
+                type="button"
+                onClick={goToPrevSlide}
+                aria-label="Diapositiva anterior"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/[0.05] text-white transition hover:border-[#60a5fa] hover:bg-white/15 active:scale-95"
+              >
+                <IconArrowRight className="h-4 w-4 rotate-180" />
+              </button>
+              <button
+                type="button"
+                onClick={goToNextSlide}
+                aria-label="Siguiente diapositiva"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/[0.05] text-white transition hover:border-[#60a5fa] hover:bg-white/15 active:scale-95"
+              >
+                <IconArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Barra Inferior de 4 Beneficios Clave */}
+          <div className="relative z-10 border-t border-white/[0.08] bg-[#0c142e]/90 pb-14 pt-7 backdrop-blur-sm">
+            <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 min-[440px]:grid-cols-2 sm:gap-6 sm:px-6 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-white/10">
+              {HERO_STRIP_ITEMS.map((item) => {
+                const StripIcon = item.icon;
+                return (
                   <div
-                    data-parallax="0.32"
-                    data-parallax-mouse="-26"
-                    className="pointer-events-none absolute h-64 w-64 rounded-full bg-indigo-500/25 blur-3xl sm:h-96 sm:w-96"
-                  />
-
-                  <div className="relative mx-auto w-full max-w-[420px] sm:max-w-[470px]">
-                    {/* Ventana 3D de Diapositivas */}
-                    <div
-                      data-parallax="0.22"
-                      data-parallax-mouse="16"
-                      data-parallax-desktop
-                      className="relative z-10 grid aspect-[4/3] w-full [grid-template-areas:'slide']"
-                    >
-                      {HERO_SLIDES.map((slide, idx) => {
-                        const isActive = currentSlide === idx;
-                        return (
-                          <div
-                            key={slide.id}
-                            aria-hidden={!isActive}
-                            className={`[grid-area:slide] h-full w-full transition-all duration-700 ease-out ${
-                              isActive
-                                ? "scale-100 opacity-100"
-                                : "pointer-events-none scale-95 opacity-0"
-                            }`}
-                          >
-                            <img
-                              src={slide.image}
-                              alt={slide.imageAlt}
-                              className="hero-render-mask h-full w-full rounded-2xl object-cover sm:rounded-3xl"
-                            />
-                          </div>
-                        );
-                      })}
+                    key={item.line1}
+                    className="flex items-center gap-3.5 lg:justify-center lg:px-6"
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-slate-200 ring-1 ring-white/10">
+                      <StripIcon className="h-5 w-5" />
                     </div>
-
-                    {/* Insignia flotante inferior izquierda (compacta en móvil, expandida en tablet/desktop) */}
-                    <div
-                      data-parallax="-0.08"
-                      data-parallax-mouse="30"
-                      data-parallax-desktop
-                      className="pointer-events-none absolute bottom-2.5 left-2.5 z-20 flex max-w-[calc(100%-1.25rem)] items-center gap-2 rounded-xl border border-white/15 bg-[#0b1330]/90 px-3 py-2 text-[11px] text-white shadow-2xl backdrop-blur-md sm:-left-3 sm:bottom-5 sm:gap-2.5 sm:rounded-2xl sm:px-4 sm:py-2.5 sm:text-xs lg:left-0 xl:-left-3"
-                    >
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399] sm:h-2.5 sm:w-2.5" />
-                      <span className="truncate font-semibold">
-                        {HERO_SLIDES[currentSlide].floatingBottom}
-                      </span>
-                    </div>
-
-                    {/* Insignia flotante superior derecha (visible desde tablet sm+ para no saturar pantallas pequeñas) */}
-                    <div
-                      data-parallax="-0.12"
-                      data-parallax-mouse="-24"
-                      data-parallax-desktop
-                      className="pointer-events-none absolute -right-3 top-5 z-20 hidden items-center gap-2 rounded-2xl border border-indigo-400/25 bg-[#0b1330]/85 px-4 py-2.5 text-xs text-indigo-100 shadow-2xl backdrop-blur-md sm:flex lg:right-0 xl:-right-3"
-                    >
-                      <IconShieldCheck className="h-4 w-4 shrink-0 text-[#60a5fa]" />
-                      <span className="font-semibold">{HERO_SLIDES[currentSlide].floatingTop}</span>
+                    <div className="text-left text-xs font-medium leading-snug text-slate-200 sm:text-sm">
+                      <p className="font-semibold text-white">{item.line1}</p>
+                      <p className="text-slate-300/80">{item.line2}</p>
                     </div>
                   </div>
-                </div>
-              </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-              {/* Controles del Slider Automático (Indicadores con área táctil amplia + Flechas Anterior/Siguiente) */}
-              <div className="relative z-20 mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 pb-6 sm:gap-4 sm:px-6 sm:pb-10">
-                <div
-                  role="tablist"
-                  aria-label="Seleccionar diapositiva"
-                  className="flex items-center gap-1"
-                >
-                  {HERO_SLIDES.map((slide, idx) => {
-                    const isActive = currentSlide === idx;
-                    return (
-                      <button
-                        key={slide.id}
-                        type="button"
-                        role="tab"
-                        aria-selected={isActive}
-                        aria-label={`Ir a diapositiva ${idx + 1}: ${slide.imageAlt}`}
-                        onClick={() => setCurrentSlide(idx)}
-                        className="group flex items-center px-1 py-2.5"
-                      >
-                        <span
-                          className={`block h-2.5 rounded-full transition-all duration-300 ${
-                            isActive
-                              ? "crescendo-btn-gradient w-8 shadow-[0_0_12px_rgba(96,165,250,0.65)] sm:w-9"
-                              : "w-2.5 bg-white/25 group-hover:bg-white/50"
-                          }`}
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
+        {/* Contenedor Principal Azul Marino (#001039) con Efecto Cortina Sobre el Hero */}
+        <div className="relative z-20 -mt-7 overflow-x-clip rounded-t-[32px] border-t border-white/10 bg-[#001039] pb-20 pt-14 shadow-[0_-18px_50px_rgba(0,0,0,0.45)] sm:pt-16">
+          {/* Esferas decorativas suaves con parallax de fondo */}
+          <div
+            data-parallax-section="-0.22"
+            className="pointer-events-none absolute -right-28 top-32 h-96 w-96 rounded-full bg-indigo-500/[0.14] blur-3xl"
+          />
+          <div
+            data-parallax-section="0.2"
+            className="pointer-events-none absolute -left-28 top-[46%] h-96 w-96 rounded-full bg-blue-500/[0.12] blur-3xl"
+          />
 
-                <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
-                  <button
-                    type="button"
-                    onClick={goToPrevSlide}
-                    aria-label="Diapositiva anterior"
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/[0.05] text-white transition hover:border-[#60a5fa] hover:bg-white/15 active:scale-95"
+          {/* Sección Destacada post-slider: Enfoque Visual en Inteligencia Artificial */}
+          <FeatureSpotlightSection
+            id="ia-destacado"
+            image="/images/ai-showcase-banner.jpg"
+            imageAlt="Visualización 3D de Inteligencia Artificial aplicada a procesos de negocio en Etronic"
+            imageBadge="IA Aplicada a Procesos Reales"
+            imageSide="left"
+            eyebrow="Inteligencia Artificial a la Medida"
+            eyebrowIcon={IconSparklesBrain}
+            titlePrefix="Lleva la "
+            titleHighlight="Inteligencia Artificial"
+            titleSuffix=" a tus procesos diarios"
+            description="Convertimos tareas repetitivas y cuellos de botella en flujos inteligentes adaptados a tu equipo. Implementamos asistentes virtuales, lectura automática de documentos y análisis operativo sin interrumpir tus herramientas actuales."
+            highlights={AI_HIGHLIGHTS}
+            primaryCta={{
+              label: "Solicitar Diagnóstico IA",
+              onClick: () =>
+                openProjectChat(
+                  "Hola, quiero platicar sobre cómo implementar Inteligencia Artificial en mi negocio o proyecto: ",
+                ),
+            }}
+            secondaryCta={{
+              label: "Ver Sectores Compatibles",
+              href: "#solucion-ia",
+            }}
+          />
+
+          {/* Sección Destacada: Enfoque Visual en el Planificador de Proyecto */}
+          <FeatureSpotlightSection
+            id="planificador-destacado"
+            image="/images/planner-showcase-banner.jpg"
+            imageAlt="Visualización 3D de plataforma modular Work Management, CRM, Service y Dashboards en Etronic"
+            imageBadge="3 Módulos · 68 Funcionalidades"
+            imageSide="right"
+            eyebrow="Plataforma Colaborativa a la Medida"
+            eyebrowIcon={IconDesktop}
+            titlePrefix="Diseña tu solución con el "
+            titleHighlight="Planificador de Proyecto"
+            titleSuffix=""
+            description="Explora nuestro catálogo modular y selecciona exactamente los procesos que tu operación necesita: desde tableros de trabajo y seguimiento comercial CRM hasta tableros ejecutivos con control de accesos y resumen en PDF."
+            highlights={PLANNER_HIGHLIGHTS}
+            primaryCta={{
+              label: "Planifica tu Solución",
+              href: "/planificador",
+              target: "_blank",
+              rel: "noopener noreferrer",
+            }}
+            secondaryCta={{
+              label: "Solicitar Asesoría",
+              onClick: () =>
+                openProjectChat(
+                  "Hola, me interesa conocer y personalizar una plataforma con el Planificador de Proyecto de Etronic: ",
+                ),
+            }}
+          />
+
+          {/* Sección 1: Nuestros Servicios Especializados */}
+          <section
+            id="servicios"
+            data-reveal
+            className="relative mx-auto max-w-6xl px-4 py-6 sm:px-6"
+          >
+            <div className="mb-9 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+              <h2 className="font-display text-2xl font-extrabold tracking-tight text-white sm:text-[32px]">
+                Nuestros Servicios Especializados
+              </h2>
+
+              <a
+                href="#principales"
+                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold text-white transition hover:border-[#60a5fa] hover:bg-white/10 sm:text-sm"
+              >
+                <span>Ver Todos los Servicios</span>
+                <IconArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+
+            <div className="flex flex-wrap items-stretch justify-center gap-6">
+              {SPECIALIZED_SERVICES.map((service) => {
+                const isLongDescription = service.description.length > 175;
+                const isExpanded = Boolean(expandedServices[service.id]);
+                const ctaHref = service.href || "#servicios";
+                const linkTarget = service.openInNewTab ? "_blank" : undefined;
+                const linkRel = service.openInNewTab ? "noopener noreferrer" : undefined;
+
+                return (
+                  <div
+                    key={service.id}
+                    className="flex w-full md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
                   >
-                    <IconArrowRight className="h-4 w-4 rotate-180" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={goToNextSlide}
-                    aria-label="Siguiente diapositiva"
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/[0.05] text-white transition hover:border-[#60a5fa] hover:bg-white/15 active:scale-95"
-                  >
-                    <IconArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
+                    <article className="group flex w-full flex-col justify-between overflow-hidden rounded-2xl bg-[#f2f3f9] transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-950/[0.07]">
+                      <div>
+                        {/* Ventana Parallax Interna en el Render 3D */}
+                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#e6e8f4]">
+                          <span className="crescendo-btn-gradient absolute left-3.5 top-3.5 z-10 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md shadow-indigo-600/25">
+                            {service.badge}
+                          </span>
 
-              {/* Barra Inferior de 4 Beneficios Clave */}
-              <div className="relative z-10 border-t border-white/[0.08] bg-[#0c142e]/90 pb-14 pt-7 backdrop-blur-sm">
-                <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 min-[440px]:grid-cols-2 sm:gap-6 sm:px-6 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-white/10">
-                  {HERO_STRIP_ITEMS.map((item) => {
-                    const StripIcon = item.icon;
-                    return (
-                      <div
-                        key={item.line1}
-                        className="flex items-center gap-3.5 lg:justify-center lg:px-6"
-                      >
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-slate-200 ring-1 ring-white/10">
-                          <StripIcon className="h-5 w-5" />
+                          <img
+                            src={service.image}
+                            alt={service.title}
+                            data-parallax-section="-0.11"
+                            data-parallax-scale="1.14"
+                            className="h-full w-full object-cover"
+                          />
+
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#f2f3f9] to-transparent" />
                         </div>
-                        <div className="text-left text-xs font-medium leading-snug text-slate-200 sm:text-sm">
-                          <p className="font-semibold text-white">{item.line1}</p>
-                          <p className="text-slate-300/80">{item.line2}</p>
+
+                        {/* Cuerpo de Tarjeta */}
+                        <div className="px-5 pt-3">
+                          <p className="mb-1 text-xs font-medium text-slate-500">
+                            {service.category}
+                          </p>
+
+                          <h3 className="font-display mb-2 min-h-[2.75rem] text-[17px] font-bold leading-snug text-[#0f172a]">
+                            {service.title}
+                          </h3>
+
+                          <div className="mb-3 flex items-center gap-1.5 text-xs">
+                            <span
+                              className="tracking-wider text-amber-400"
+                              aria-label="5 estrellas"
+                            >
+                              ★★★★★
+                            </span>
+                            <span className="font-medium text-slate-400">{service.reviews}</span>
+                          </div>
+
+                          <p
+                            className={`text-[13px] leading-relaxed text-slate-600 ${
+                              isLongDescription && !isExpanded ? "line-clamp-4" : ""
+                            }`}
+                          >
+                            {service.description}
+                          </p>
+
+                          {isLongDescription && (
+                            <button
+                              type="button"
+                              onClick={() => toggleServiceDescription(service.id)}
+                              aria-expanded={isExpanded}
+                              className="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-[#1d4ed8] transition hover:text-[#5848f4]"
+                            >
+                              {isExpanded ? "Leer menos" : "Leer más"}
+                            </button>
+                          )}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </section>
 
-            {/* Contenedor Principal Azul Marino (#001039) con Efecto Cortina Sobre el Hero */}
-            <div className="relative z-20 -mt-7 overflow-x-clip rounded-t-[32px] border-t border-white/10 bg-[#001039] pb-20 pt-14 shadow-[0_-18px_50px_rgba(0,0,0,0.45)] sm:pt-16">
-              {/* Esferas decorativas suaves con parallax de fondo */}
+                      {/* Pie de Tarjeta con CTA Azul + Botón Circular Violeta */}
+                      <div className="mt-5 flex items-center justify-between gap-2 px-5 pb-5">
+                        <a
+                          href={ctaHref}
+                          target={linkTarget}
+                          rel={linkRel}
+                          className="font-display text-sm font-extrabold leading-tight text-[#1d4ed8] transition hover:text-[#5848f4]"
+                        >
+                          {service.cta}
+                        </a>
+
+                        <a
+                          href={ctaHref}
+                          target={linkTarget}
+                          rel={linkRel}
+                          aria-label={service.cta}
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#5848f4] text-white shadow-md shadow-indigo-500/35 transition duration-300 hover:scale-105 hover:bg-[#4636e3]"
+                        >
+                          <IconArrowRight className="h-4 w-4" />
+                        </a>
+                      </div>
+                    </article>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Destacado Interactivo: Implementación de Inteligencia Artificial a la Medida */}
+          <section
+            id="solucion-ia"
+            data-reveal
+            className="mx-auto mt-10 max-w-6xl px-4 sm:mt-12 sm:px-6"
+          >
+            <div className="crescendo-navy-banner relative overflow-hidden rounded-3xl p-6 text-white ring-1 ring-white/10 shadow-2xl shadow-black/35 sm:p-10 lg:p-12">
               <div
-                data-parallax-section="-0.22"
-                className="pointer-events-none absolute -right-28 top-32 h-96 w-96 rounded-full bg-indigo-500/[0.14] blur-3xl"
+                data-parallax-section="-0.18"
+                className="parallax-tech-grid pointer-events-none absolute -inset-16 opacity-60"
               />
               <div
                 data-parallax-section="0.2"
-                className="pointer-events-none absolute -left-28 top-[46%] h-96 w-96 rounded-full bg-blue-500/[0.12] blur-3xl"
+                data-parallax-x="-0.1"
+                className="pointer-events-none absolute -right-12 -top-12 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl"
               />
 
-              {/* Sección Destacada post-slider: Enfoque Visual en Inteligencia Artificial */}
-              <FeatureSpotlightSection
-                id="ia-destacado"
-                image="/images/ai-showcase-banner.jpg"
-                imageAlt="Visualización 3D de Inteligencia Artificial aplicada a procesos de negocio en Etronic"
-                imageBadge="IA Aplicada a Procesos Reales"
-                imageSide="left"
-                eyebrow="Inteligencia Artificial a la Medida"
-                eyebrowIcon={IconSparklesBrain}
-                titlePrefix="Lleva la "
-                titleHighlight="Inteligencia Artificial"
-                titleSuffix=" a tus procesos diarios"
-                description="Convertimos tareas repetitivas y cuellos de botella en flujos inteligentes adaptados a tu equipo. Implementamos asistentes virtuales, lectura automática de documentos y análisis operativo sin interrumpir tus herramientas actuales."
-                highlights={AI_HIGHLIGHTS}
-                primaryCta={{
-                  label: "Solicitar Diagnóstico IA",
-                  onClick: () =>
-                    openProjectChat(
-                      "Hola, quiero platicar sobre cómo implementar Inteligencia Artificial en mi negocio o proyecto: ",
-                    ),
-                }}
-                secondaryCta={{
-                  label: "Ver Sectores Compatibles",
-                  href: "#solucion-ia",
-                }}
-              />
+              <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
+                <div className="lg:col-span-5">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#60a5fa]/30 bg-[#3b82f6]/15 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#60a5fa]">
+                    <IconSparklesBrain className="h-4 w-4 shrink-0" />
+                    <span>Servicio Personalizado de IA</span>
+                  </div>
 
-              {/* Sección Destacada: Enfoque Visual en el Planificador de Proyecto */}
-              <FeatureSpotlightSection
-                id="planificador-destacado"
-                image="/images/planner-showcase-banner.jpg"
-                imageAlt="Visualización 3D de plataforma modular Work Management, CRM, Service y Dashboards en Etronic"
-                imageBadge="3 Módulos · 68 Funcionalidades"
-                imageSide="right"
-                eyebrow="Plataforma Colaborativa a la Medida"
-                eyebrowIcon={IconDesktop}
-                titlePrefix="Diseña tu solución con el "
-                titleHighlight="Planificador de Proyecto"
-                titleSuffix=""
-                description="Explora nuestro catálogo modular y selecciona exactamente los procesos que tu operación necesita: desde tableros de trabajo y seguimiento comercial CRM hasta tableros ejecutivos con control de accesos y resumen en PDF."
-                highlights={PLANNER_HIGHLIGHTS}
-                primaryCta={{
-                  label: "Planifica tu Solución",
-                  onClick: handleOpenProjectPlanner,
-                }}
-                secondaryCta={{
-                  label: "Solicitar Asesoría",
-                  onClick: () =>
-                    openProjectChat(
-                      "Hola, me interesa conocer y personalizar una plataforma con el Planificador de Proyecto de Etronic: ",
-                    ),
-                }}
-              />
-
-              {/* Sección 1: Nuestros Servicios Especializados */}
-              <section
-                id="servicios"
-                data-reveal
-                className="relative mx-auto max-w-6xl px-4 py-6 sm:px-6"
-              >
-                <div className="mb-9 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-                  <h2 className="font-display text-2xl font-extrabold tracking-tight text-white sm:text-[32px]">
-                    Nuestros Servicios Especializados
+                  <h2 className="font-display mb-4 text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl lg:text-[34px]">
+                    ¿Necesitas Inteligencia Artificial en tu{" "}
+                    <span className="crescendo-text-gradient">Negocio o Proyecto</span>?
                   </h2>
 
-                  <a
-                    href="#principales"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold text-white transition hover:border-[#60a5fa] hover:bg-white/10 sm:text-sm"
-                  >
-                    <span>Ver Todos los Servicios</span>
-                    <IconArrowRight className="h-4 w-4" />
-                  </a>
+                  <p className="mb-6 text-sm leading-relaxed text-slate-200/90 sm:text-base">
+                    Platícanos cómo operan tus procesos y qué necesitas resolver. No importa el giro
+                    de tu empresa: diseñamos, integramos y ponemos en marcha herramientas de IA
+                    adaptadas a tus flujos reales de trabajo.
+                  </p>
+
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openProjectChat(
+                          "Hola, me interesa implementar Inteligencia Artificial en mi proyecto. Mis necesidades son: ",
+                        )
+                      }
+                      className="crescendo-btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-full px-7 py-3.5 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(93,74,255,0.45)] transition duration-300 hover:-translate-y-0.5 sm:w-auto"
+                    >
+                      <span>Cuéntanos tu Proyecto IA</span>
+                      <IconArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap items-stretch justify-center gap-6">
-                  {SPECIALIZED_SERVICES.map((service) => {
-                    const isLongDescription = service.description.length > 175;
-                    const isExpanded = Boolean(expandedServices[service.id]);
-                    const ctaHref = service.href || "#servicios";
-                    const handleCtaClick =
-                      service.action === "open-planner"
-                        ? (e) => {
-                            e.preventDefault();
-                            handleOpenProjectPlanner();
-                          }
-                        : service.href
-                          ? undefined
-                          : (e) => {
-                              e.preventDefault();
-                            };
-
-                    return (
-                      <div
-                        key={service.id}
-                        className="flex w-full md:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
-                      >
-                        <article className="group flex w-full flex-col justify-between overflow-hidden rounded-2xl bg-[#f2f3f9] transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-950/[0.07]">
-                          <div>
-                            {/* Ventana Parallax Interna en el Render 3D */}
-                            <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#e6e8f4]">
-                              <span className="crescendo-btn-gradient absolute left-3.5 top-3.5 z-10 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md shadow-indigo-600/25">
-                                {service.badge}
-                              </span>
-
-                              <img
-                                src={service.image}
-                                alt={service.title}
-                                data-parallax-section="-0.11"
-                                data-parallax-scale="1.14"
-                                className="h-full w-full object-cover"
-                              />
-
-                              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#f2f3f9] to-transparent" />
-                            </div>
-
-                            {/* Cuerpo de Tarjeta */}
-                            <div className="px-5 pt-3">
-                              <p className="mb-1 text-xs font-medium text-slate-500">
-                                {service.category}
-                              </p>
-
-                              <h3 className="font-display mb-2 min-h-[2.75rem] text-[17px] font-bold leading-snug text-[#0f172a]">
-                                {service.title}
-                              </h3>
-
-                              <div className="mb-3 flex items-center gap-1.5 text-xs">
-                                <span
-                                  className="tracking-wider text-amber-400"
-                                  aria-label="5 estrellas"
-                                >
-                                  ★★★★★
-                                </span>
-                                <span className="font-medium text-slate-400">
-                                  {service.reviews}
-                                </span>
-                              </div>
-
-                              <p
-                                className={`text-[13px] leading-relaxed text-slate-600 ${
-                                  isLongDescription && !isExpanded ? "line-clamp-4" : ""
-                                }`}
-                              >
-                                {service.description}
-                              </p>
-
-                              {isLongDescription && (
-                                <button
-                                  type="button"
-                                  onClick={() => toggleServiceDescription(service.id)}
-                                  aria-expanded={isExpanded}
-                                  className="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-[#1d4ed8] transition hover:text-[#5848f4]"
-                                >
-                                  {isExpanded ? "Leer menos" : "Leer más"}
-                                </button>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Pie de Tarjeta con CTA Azul + Botón Circular Violeta */}
-                          <div className="mt-5 flex items-center justify-between gap-2 px-5 pb-5">
-                            <a
-                              href={ctaHref}
-                              onClick={handleCtaClick}
-                              className="font-display text-sm font-extrabold leading-tight text-[#1d4ed8] transition hover:text-[#5848f4]"
-                            >
-                              {service.cta}
-                            </a>
-
-                            <a
-                              href={ctaHref}
-                              aria-label={service.cta}
-                              onClick={handleCtaClick}
-                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#5848f4] text-white shadow-md shadow-indigo-500/35 transition duration-300 hover:scale-105 hover:bg-[#4636e3]"
-                            >
-                              <IconArrowRight className="h-4 w-4" />
-                            </a>
-                          </div>
-                        </article>
+                <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:col-span-7">
+                  {AI_SECTORS.map((sector) => (
+                    <button
+                      key={sector.title}
+                      type="button"
+                      onClick={() =>
+                        openProjectChat(
+                          `Hola, me gustaría implementar IA para ${sector.title}. Necesito ayuda con: `,
+                        )
+                      }
+                      className="group flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition duration-300 hover:-translate-y-0.5 hover:border-[#60a5fa]/50 hover:bg-white/[0.08]"
+                    >
+                      <div>
+                        <div className="mb-1.5 flex items-center justify-between gap-2">
+                          <h3 className="font-display text-sm font-bold text-white group-hover:text-[#60a5fa]">
+                            {sector.title}
+                          </h3>
+                          <IconArrowRight className="h-3.5 w-3.5 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-[#60a5fa]" />
+                        </div>
+                        <p className="text-xs leading-relaxed text-slate-300/90">{sector.detail}</p>
                       </div>
-                    );
-                  })}
+                    </button>
+                  ))}
                 </div>
-              </section>
+              </div>
+            </div>
+          </section>
 
-              {/* Destacado Interactivo: Implementación de Inteligencia Artificial a la Medida */}
-              <section
-                id="solucion-ia"
-                data-reveal
-                className="mx-auto mt-10 max-w-6xl px-4 sm:mt-12 sm:px-6"
+          {/* Sección 2: Servicios Principales / Características Destacadas (Ondas con Parallax Horizontal) */}
+          <section
+            id="principales"
+            data-reveal
+            className="relative mx-auto mt-12 max-w-6xl px-4 py-6 sm:mt-14 sm:px-6"
+          >
+            <div className="mb-9 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#60a5fa]">
+                  Características Destacadas
+                </p>
+                <h2 className="font-display text-2xl font-extrabold tracking-tight text-white sm:text-[32px]">
+                  Servicios Principales
+                </h2>
+              </div>
+
+              <a
+                href="#contacto"
+                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold text-white transition hover:border-[#60a5fa] hover:bg-white/10 sm:text-sm"
               >
-                <div className="crescendo-navy-banner relative overflow-hidden rounded-3xl p-6 text-white ring-1 ring-white/10 shadow-2xl shadow-black/35 sm:p-10 lg:p-12">
-                  <div
-                    data-parallax-section="-0.18"
-                    className="parallax-tech-grid pointer-events-none absolute -inset-16 opacity-60"
-                  />
-                  <div
-                    data-parallax-section="0.2"
-                    data-parallax-x="-0.1"
-                    className="pointer-events-none absolute -right-12 -top-12 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl"
-                  />
+                <span>Descubra Más</span>
+                <IconArrowRight className="h-4 w-4" />
+              </a>
+            </div>
 
-                  <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
-                    <div className="lg:col-span-5">
-                      <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#60a5fa]/30 bg-[#3b82f6]/15 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#60a5fa]">
-                        <IconSparklesBrain className="h-4 w-4 shrink-0" />
-                        <span>Servicio Personalizado de IA</span>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {MAIN_FEATURES.map((feature, idx) => {
+                const FeatureIcon = feature.icon;
+                const waveDir = idx % 2 === 0 ? "0.09" : "-0.09";
+                return (
+                  <div
+                    key={feature.title}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#f2f3f9] p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-950/[0.06]"
+                  >
+                    {/* Ondas decorativas con parallax horizontal/vertical */}
+                    <div
+                      data-parallax-section="0.06"
+                      data-parallax-x={waveDir}
+                      data-parallax-scale="1.15"
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-32 w-full"
+                    >
+                      <CardWaveDecor className="h-full w-full" />
+                    </div>
+
+                    <div className="relative z-10">
+                      <h3 className="font-display mb-2 text-[17px] font-bold leading-snug text-[#0f172a]">
+                        {feature.title}
+                      </h3>
+
+                      <p className="mb-6 text-xs leading-relaxed text-slate-600 sm:text-[13px]">
+                        {feature.description}
+                      </p>
+                    </div>
+
+                    <div className="relative z-10 flex items-end justify-between pt-2">
+                      <a
+                        href="#contacto"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1d4ed8] transition hover:text-[#5848f4]"
+                      >
+                        <span>Consultar</span>
+                        <IconArrowRight className="h-3.5 w-3.5" />
+                      </a>
+
+                      <div
+                        data-parallax-section="-0.05"
+                        className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#111936] to-[#262469] text-[#60a5fa] shadow-lg shadow-indigo-950/20 transition duration-300 group-hover:scale-105 group-hover:text-white"
+                      >
+                        <FeatureIcon className="h-5 w-5" />
                       </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
 
-                      <h2 className="font-display mb-4 text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl lg:text-[34px]">
-                        ¿Necesitas Inteligencia Artificial en tu{" "}
-                        <span className="crescendo-text-gradient">Negocio o Proyecto</span>?
-                      </h2>
+          {/* Sección 3: Nuestra Visión en Etronic (Banner Cósmico con Capas Parallax Internas) */}
+          <section
+            id="sobre-nosotros"
+            data-reveal
+            className="mx-auto mt-12 max-w-6xl px-4 sm:mt-16 sm:px-6"
+          >
+            <div className="crescendo-navy-banner relative overflow-hidden rounded-3xl px-6 py-12 text-white ring-1 ring-white/10 shadow-2xl shadow-black/35 sm:px-12 sm:py-14">
+              {/* Capas de profundidad dentro del banner */}
+              <div
+                data-parallax-section="0.2"
+                className="parallax-tech-grid pointer-events-none absolute -inset-16 opacity-60"
+              />
+              <div
+                data-parallax-section="-0.25"
+                data-parallax-x="0.12"
+                className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-violet-500/30 blur-3xl"
+              />
+              <div
+                data-parallax-section="0.22"
+                data-parallax-x="-0.12"
+                className="pointer-events-none absolute -bottom-20 -left-16 h-72 w-72 rounded-full bg-sky-500/25 blur-3xl"
+              />
 
-                      <p className="mb-6 text-sm leading-relaxed text-slate-200/90 sm:text-base">
-                        Platícanos cómo operan tus procesos y qué necesitas resolver. No importa el
-                        giro de tu empresa: diseñamos, integramos y ponemos en marcha herramientas
-                        de IA adaptadas a tus flujos reales de trabajo.
+              <div className="relative z-10 mx-auto max-w-3xl text-center">
+                <h2 className="font-display mb-5 text-2xl font-extrabold tracking-tight text-white sm:text-4xl">
+                  Nuestra Visión en Etronic
+                </h2>
+
+                <p className="text-sm leading-relaxed text-slate-200/90 sm:text-base">
+                  Etronic se dedica a transformar la manera en que las empresas enfrentan los
+                  desafíos tecnológicos. Nuestra misión es proporcionar soluciones innovadoras que
+                  no solo resuelvan problemas inmediatos, sino que también anticipen futuras
+                  necesidades. Utilizando herramientas avanzadas como TeamViewer, garantizamos
+                  soporte remoto eficiente, asegurando que nuestros clientes puedan operar sin
+                  interrupciones, sin importar su ubicación. Creemos en un enfoque personalizado,
+                  adaptando nuestras soluciones a las necesidades específicas de cada cliente para
+                  maximizar su productividad y éxito.
+                </p>
+              </div>
+
+              <div className="relative z-10 mt-10 grid grid-cols-1 gap-7 border-t border-white/10 pt-10 md:grid-cols-3">
+                {VISION_PILLARS.map((pillar) => {
+                  const PillarIcon = pillar.icon;
+                  return (
+                    <div key={pillar.title} className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#5848f4] text-white shadow-lg shadow-indigo-600/40">
+                        <PillarIcon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-base font-bold text-white">
+                          {pillar.title}
+                        </h3>
+                        <p className="mt-1 text-xs leading-relaxed text-slate-300 sm:text-[13px]">
+                          {pillar.text}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
+          {/* Sección 4: Lo Que Dicen Nuestros Clientes (Columnas Escalonadas con Parallax) */}
+          <section
+            id="testimonios"
+            data-reveal
+            className="relative mx-auto mt-12 max-w-6xl px-4 py-6 sm:mt-16 sm:px-6"
+          >
+            <div className="mb-10 text-center">
+              <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-[#60a5fa] ring-1 ring-white/15">
+                <IconQuoteLeft className="h-5 w-5" />
+              </div>
+              <h2 className="font-display text-2xl font-extrabold tracking-tight text-white sm:text-[32px]">
+                Lo Que Dicen Nuestros Clientes
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-7">
+              {TESTIMONIALS.map((item) => (
+                <div
+                  key={item.name}
+                  data-parallax-section={item.speed}
+                  data-parallax-desktop
+                  className="flex"
+                >
+                  <div className="relative flex w-full flex-col justify-between overflow-hidden rounded-2xl bg-[#f2f3f9] p-7 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-950/[0.06]">
+                    <div
+                      data-parallax-section="0.06"
+                      data-parallax-x="0.08"
+                      data-parallax-scale="1.12"
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-28 w-full opacity-70"
+                    >
+                      <CardWaveDecor className="h-full w-full" />
+                    </div>
+
+                    <div className="relative z-10">
+                      <p
+                        className="mb-4 text-base tracking-[3px] text-amber-400"
+                        aria-label="5 de 5 estrellas"
+                      >
+                        ★★★★★
                       </p>
 
-                      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            openProjectChat(
-                              "Hola, me interesa implementar Inteligencia Artificial en mi proyecto. Mis necesidades son: ",
-                            )
-                          }
-                          className="crescendo-btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-full px-7 py-3.5 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(93,74,255,0.45)] transition duration-300 hover:-translate-y-0.5 sm:w-auto"
-                        >
-                          <span>Cuéntanos tu Proyecto IA</span>
-                          <IconArrowRight className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <p className="mb-7 text-[15px] font-semibold leading-relaxed text-[#1e293b]">
+                        {item.quote}
+                      </p>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:col-span-7">
-                      {AI_SECTORS.map((sector) => (
-                        <button
-                          key={sector.title}
-                          type="button"
-                          onClick={() =>
-                            openProjectChat(
-                              `Hola, me gustaría implementar IA para ${sector.title}. Necesito ayuda con: `,
-                            )
-                          }
-                          className="group flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition duration-300 hover:-translate-y-0.5 hover:border-[#60a5fa]/50 hover:bg-white/[0.08]"
-                        >
-                          <div>
-                            <div className="mb-1.5 flex items-center justify-between gap-2">
-                              <h3 className="font-display text-sm font-bold text-white group-hover:text-[#60a5fa]">
-                                {sector.title}
-                              </h3>
-                              <IconArrowRight className="h-3.5 w-3.5 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-[#60a5fa]" />
-                            </div>
-                            <p className="text-xs leading-relaxed text-slate-300/90">
-                              {sector.detail}
-                            </p>
-                          </div>
-                        </button>
-                      ))}
+                    <div className="relative z-10 flex items-center gap-3.5 border-t border-slate-200/80 pt-4">
+                      <img
+                        src={item.avatar}
+                        alt={item.name}
+                        className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-[#5848f4]/30"
+                      />
+                      <div>
+                        <h4 className="font-display text-sm font-bold text-[#0f172a]">
+                          {item.name}
+                        </h4>
+                        <p className="text-xs font-medium text-slate-500">{item.role}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </section>
+              ))}
+            </div>
+          </section>
 
-              {/* Sección 2: Servicios Principales / Características Destacadas (Ondas con Parallax Horizontal) */}
-              <section
-                id="principales"
-                data-reveal
-                className="relative mx-auto mt-12 max-w-6xl px-4 py-6 sm:mt-14 sm:px-6"
-              >
-                <div className="mb-9 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-                  <div>
-                    <p className="mb-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#60a5fa]">
-                      Características Destacadas
-                    </p>
-                    <h2 className="font-display text-2xl font-extrabold tracking-tight text-white sm:text-[32px]">
-                      Servicios Principales
-                    </h2>
-                  </div>
+          {/* Sección 5: Contáctenos Hoy (Banner Dividido con Imagen Parallax) */}
+          <section
+            id="contacto"
+            data-reveal
+            className="mx-auto mt-12 max-w-6xl px-4 sm:mt-14 sm:px-6"
+          >
+            <div className="crescendo-navy-banner relative overflow-hidden rounded-3xl p-6 text-white ring-1 ring-white/10 shadow-2xl shadow-black/35 sm:p-10 lg:p-12">
+              <div
+                data-parallax-section="-0.22"
+                className="parallax-tech-grid pointer-events-none absolute -inset-16 opacity-55"
+              />
+              <div
+                data-parallax-section="0.24"
+                data-parallax-x="-0.1"
+                className="pointer-events-none absolute -right-12 bottom-0 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl"
+              />
+
+              <div className="relative z-10 grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-12">
+                <div className="lg:col-span-7">
+                  <p className="mb-3 inline-block rounded-full border border-[#60a5fa]/30 bg-[#3b82f6]/15 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#60a5fa]">
+                    Atención Personalizada
+                  </p>
+
+                  <h2 className="font-display mb-4 text-2xl font-extrabold tracking-tight text-white sm:text-4xl">
+                    Contáctenos Hoy
+                  </h2>
+
+                  <p className="mb-7 max-w-xl text-sm leading-relaxed text-slate-200/90 sm:mb-8 sm:text-base">
+                    ¿Interesado en nuestros servicios? No dude en ponerse en contacto con nosotros
+                    para obtener más información o solicitar asistencia personalizada.
+                  </p>
 
                   <a
                     href="#contacto"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold text-white transition hover:border-[#60a5fa] hover:bg-white/10 sm:text-sm"
+                    className="crescendo-btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-full px-7 py-3.5 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(93,74,255,0.45)] transition duration-300 hover:-translate-y-0.5 sm:w-auto"
                   >
-                    <span>Descubra Más</span>
+                    <span>Contáctenos</span>
                     <IconArrowRight className="h-4 w-4" />
                   </a>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                  {MAIN_FEATURES.map((feature, idx) => {
-                    const FeatureIcon = feature.icon;
-                    const waveDir = idx % 2 === 0 ? "0.09" : "-0.09";
-                    return (
-                      <div
-                        key={feature.title}
-                        className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#f2f3f9] p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-950/[0.06]"
-                      >
-                        {/* Ondas decorativas con parallax horizontal/vertical */}
-                        <div
-                          data-parallax-section="0.06"
-                          data-parallax-x={waveDir}
-                          data-parallax-scale="1.15"
-                          className="pointer-events-none absolute inset-x-0 bottom-0 h-32 w-full"
-                        >
-                          <CardWaveDecor className="h-full w-full" />
-                        </div>
-
-                        <div className="relative z-10">
-                          <h3 className="font-display mb-2 text-[17px] font-bold leading-snug text-[#0f172a]">
-                            {feature.title}
-                          </h3>
-
-                          <p className="mb-6 text-xs leading-relaxed text-slate-600 sm:text-[13px]">
-                            {feature.description}
-                          </p>
-                        </div>
-
-                        <div className="relative z-10 flex items-end justify-between pt-2">
-                          <a
-                            href="#contacto"
-                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1d4ed8] transition hover:text-[#5848f4]"
-                          >
-                            <span>Consultar</span>
-                            <IconArrowRight className="h-3.5 w-3.5" />
-                          </a>
-
-                          <div
-                            data-parallax-section="-0.05"
-                            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#111936] to-[#262469] text-[#60a5fa] shadow-lg shadow-indigo-950/20 transition duration-300 group-hover:scale-105 group-hover:text-white"
-                          >
-                            <FeatureIcon className="h-5 w-5" />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-
-              {/* Sección 3: Nuestra Visión en Etronic (Banner Cósmico con Capas Parallax Internas) */}
-              <section
-                id="sobre-nosotros"
-                data-reveal
-                className="mx-auto mt-12 max-w-6xl px-4 sm:mt-16 sm:px-6"
-              >
-                <div className="crescendo-navy-banner relative overflow-hidden rounded-3xl px-6 py-12 text-white ring-1 ring-white/10 shadow-2xl shadow-black/35 sm:px-12 sm:py-14">
-                  {/* Capas de profundidad dentro del banner */}
-                  <div
-                    data-parallax-section="0.2"
-                    className="parallax-tech-grid pointer-events-none absolute -inset-16 opacity-60"
-                  />
-                  <div
-                    data-parallax-section="-0.25"
-                    data-parallax-x="0.12"
-                    className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-violet-500/30 blur-3xl"
-                  />
-                  <div
-                    data-parallax-section="0.22"
-                    data-parallax-x="-0.12"
-                    className="pointer-events-none absolute -bottom-20 -left-16 h-72 w-72 rounded-full bg-sky-500/25 blur-3xl"
-                  />
-
-                  <div className="relative z-10 mx-auto max-w-3xl text-center">
-                    <h2 className="font-display mb-5 text-2xl font-extrabold tracking-tight text-white sm:text-4xl">
-                      Nuestra Visión en Etronic
-                    </h2>
-
-                    <p className="text-sm leading-relaxed text-slate-200/90 sm:text-base">
-                      Etronic se dedica a transformar la manera en que las empresas enfrentan los
-                      desafíos tecnológicos. Nuestra misión es proporcionar soluciones innovadoras
-                      que no solo resuelvan problemas inmediatos, sino que también anticipen futuras
-                      necesidades. Utilizando herramientas avanzadas como TeamViewer, garantizamos
-                      soporte remoto eficiente, asegurando que nuestros clientes puedan operar sin
-                      interrupciones, sin importar su ubicación. Creemos en un enfoque
-                      personalizado, adaptando nuestras soluciones a las necesidades específicas de
-                      cada cliente para maximizar su productividad y éxito.
-                    </p>
-                  </div>
-
-                  <div className="relative z-10 mt-10 grid grid-cols-1 gap-7 border-t border-white/10 pt-10 md:grid-cols-3">
-                    {VISION_PILLARS.map((pillar) => {
-                      const PillarIcon = pillar.icon;
-                      return (
-                        <div key={pillar.title} className="flex items-start gap-4">
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#5848f4] text-white shadow-lg shadow-indigo-600/40">
-                            <PillarIcon className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <h3 className="font-display text-base font-bold text-white">
-                              {pillar.title}
-                            </h3>
-                            <p className="mt-1 text-xs leading-relaxed text-slate-300 sm:text-[13px]">
-                              {pillar.text}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
+                <div className="lg:col-span-5">
+                  <div className="overflow-hidden rounded-2xl ring-1 ring-white/15 shadow-2xl">
+                    <img
+                      src="/images/contact-support.webp"
+                      alt="Atención y soporte personalizado Etronic"
+                      data-parallax-section="-0.12"
+                      data-parallax-scale="1.14"
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                 </div>
-              </section>
-
-              {/* Sección 4: Lo Que Dicen Nuestros Clientes (Columnas Escalonadas con Parallax) */}
-              <section
-                id="testimonios"
-                data-reveal
-                className="relative mx-auto mt-12 max-w-6xl px-4 py-6 sm:mt-16 sm:px-6"
-              >
-                <div className="mb-10 text-center">
-                  <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-[#60a5fa] ring-1 ring-white/15">
-                    <IconQuoteLeft className="h-5 w-5" />
-                  </div>
-                  <h2 className="font-display text-2xl font-extrabold tracking-tight text-white sm:text-[32px]">
-                    Lo Que Dicen Nuestros Clientes
-                  </h2>
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-7">
-                  {TESTIMONIALS.map((item) => (
-                    <div
-                      key={item.name}
-                      data-parallax-section={item.speed}
-                      data-parallax-desktop
-                      className="flex"
-                    >
-                      <div className="relative flex w-full flex-col justify-between overflow-hidden rounded-2xl bg-[#f2f3f9] p-7 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-950/[0.06]">
-                        <div
-                          data-parallax-section="0.06"
-                          data-parallax-x="0.08"
-                          data-parallax-scale="1.12"
-                          className="pointer-events-none absolute inset-x-0 bottom-0 h-28 w-full opacity-70"
-                        >
-                          <CardWaveDecor className="h-full w-full" />
-                        </div>
-
-                        <div className="relative z-10">
-                          <p
-                            className="mb-4 text-base tracking-[3px] text-amber-400"
-                            aria-label="5 de 5 estrellas"
-                          >
-                            ★★★★★
-                          </p>
-
-                          <p className="mb-7 text-[15px] font-semibold leading-relaxed text-[#1e293b]">
-                            {item.quote}
-                          </p>
-                        </div>
-
-                        <div className="relative z-10 flex items-center gap-3.5 border-t border-slate-200/80 pt-4">
-                          <img
-                            src={item.avatar}
-                            alt={item.name}
-                            className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-[#5848f4]/30"
-                          />
-                          <div>
-                            <h4 className="font-display text-sm font-bold text-[#0f172a]">
-                              {item.name}
-                            </h4>
-                            <p className="text-xs font-medium text-slate-500">{item.role}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              {/* Sección 5: Contáctenos Hoy (Banner Dividido con Imagen Parallax) */}
-              <section
-                id="contacto"
-                data-reveal
-                className="mx-auto mt-12 max-w-6xl px-4 sm:mt-14 sm:px-6"
-              >
-                <div className="crescendo-navy-banner relative overflow-hidden rounded-3xl p-6 text-white ring-1 ring-white/10 shadow-2xl shadow-black/35 sm:p-10 lg:p-12">
-                  <div
-                    data-parallax-section="-0.22"
-                    className="parallax-tech-grid pointer-events-none absolute -inset-16 opacity-55"
-                  />
-                  <div
-                    data-parallax-section="0.24"
-                    data-parallax-x="-0.1"
-                    className="pointer-events-none absolute -right-12 bottom-0 h-64 w-64 rounded-full bg-indigo-500/30 blur-3xl"
-                  />
-
-                  <div className="relative z-10 grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-12">
-                    <div className="lg:col-span-7">
-                      <p className="mb-3 inline-block rounded-full border border-[#60a5fa]/30 bg-[#3b82f6]/15 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#60a5fa]">
-                        Atención Personalizada
-                      </p>
-
-                      <h2 className="font-display mb-4 text-2xl font-extrabold tracking-tight text-white sm:text-4xl">
-                        Contáctenos Hoy
-                      </h2>
-
-                      <p className="mb-7 max-w-xl text-sm leading-relaxed text-slate-200/90 sm:mb-8 sm:text-base">
-                        ¿Interesado en nuestros servicios? No dude en ponerse en contacto con
-                        nosotros para obtener más información o solicitar asistencia personalizada.
-                      </p>
-
-                      <a
-                        href="#contacto"
-                        className="crescendo-btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-full px-7 py-3.5 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(93,74,255,0.45)] transition duration-300 hover:-translate-y-0.5 sm:w-auto"
-                      >
-                        <span>Contáctenos</span>
-                        <IconArrowRight className="h-4 w-4" />
-                      </a>
-                    </div>
-
-                    <div className="lg:col-span-5">
-                      <div className="overflow-hidden rounded-2xl ring-1 ring-white/15 shadow-2xl">
-                        <img
-                          src="/images/contact-support.webp"
-                          alt="Atención y soporte personalizado Etronic"
-                          data-parallax-section="-0.12"
-                          data-parallax-scale="1.14"
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
+              </div>
             </div>
-          </>
-        )}
+          </section>
+        </div>
       </main>
 
       {/* Footer Principal Oscuro (espacio inferior/derecho reservado para el botón flotante de chat) */}

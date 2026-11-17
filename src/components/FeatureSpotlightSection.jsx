@@ -15,7 +15,12 @@ function SpotlightAction({ action, variant }) {
 
   if (action.href) {
     return (
-      <a href={action.href} className={baseClass}>
+      <a
+        href={action.href}
+        target={action.target}
+        rel={action.rel || (action.target === "_blank" ? "noopener noreferrer" : undefined)}
+        className={baseClass}
+      >
         {content}
       </a>
     );
