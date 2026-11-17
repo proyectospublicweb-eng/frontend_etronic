@@ -14,7 +14,7 @@ import { useEffect } from "react";
  * - `data-scroll-progress`: barra superior cuyo `scaleX` refleja el avance de lectura (0..1).
  * - `data-reveal`: animación suave de aparición al entrar en pantalla (`IntersectionObserver`).
  */
-export function useParallaxEngine(containerRef) {
+export function useParallaxEngine(containerRef, refreshKey = false) {
   useEffect(() => {
     const root = containerRef.current;
     if (!root) return undefined;
@@ -201,5 +201,5 @@ export function useParallaxEngine(containerRef) {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [containerRef]);
+  }, [containerRef, refreshKey]);
 }

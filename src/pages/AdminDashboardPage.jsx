@@ -8,8 +8,10 @@ import {
   updateAdminUserRoleRequest,
   deleteAdminUserRequest,
   getAdminChatsRequest,
+  getAdminPlannerRequest,
 } from "../api/admin.js";
 import ControlSoportePanel from "../components/ControlSoportePanel.jsx";
+import PlanificadorAdminPanel from "../components/PlanificadorAdminPanel.jsx";
 import {
   CardWaveDecor,
   IconArrowRight,
@@ -31,6 +33,7 @@ const SIDEBAR_SECTIONS = [
   { id: "users", label: "Usuarios y Roles", icon: IconDatabase },
   { id: "security", label: "Seguridad y Sesión", icon: IconShieldCheck },
   { id: "support", label: "Control & Soporte", icon: IconHeadset },
+  { id: "planner", label: "Planificador de proyectos", icon: IconBriefcaseMedical },
 ];
 
 function formatDate(isoString) {
@@ -67,6 +70,13 @@ function AdminDashboardPage() {
     atendidos: 0,
     no_leidos: 0,
   });
+  const [plannerSubmissions, setPlannerSubmissions] = useState([]);
+  const [plannerSummary, setPlannerSummary] = useState({
+    total: 0,
+    pendientes: 0,
+    en_seguimiento: 0,
+    atendidos: 0,
+  });
   const [loadingData, setLoadingData] = useState(true);
   const [dataError, setDataError] = useState("");
   const [reloadTick, setReloadTick] = useState(0);
@@ -85,8 +95,13 @@ function AdminDashboardPage() {
     let active = true;
 
     const loadAllDashboardData = () => {
-      Promise.all([getAdminStatsRequest(), getAdminUsersRequest(), getAdminChatsRequest()])
-        .then(([statsRes, usersRes, chatsRes]) => {
+      Promise.all([
+        getAdminStatsRequest(),
+        getAdminUsersRequest(),
+        getAdminChatsRequest(),
+        getAdminPlannerRequest(),
+      ])
+        .then(([statsRes, usersRes, chatsRes, plannerRes]) => {
           if (!active) return;
           if (statsRes.data?.stats) {
             setStats(statsRes.data.stats);
@@ -100,6 +115,12 @@ function AdminDashboardPage() {
           }
           if (Array.isArray(chatsRes.data?.conversations)) {
             setChatConversations(chatsRes.data.conversations);
+          }
+          if (plannerRes.data?.summary) {
+            setPlannerSummary(plannerRes.data.summary);
+          }
+          if (Array.isArray(plannerRes.data?.submissions)) {
+            setPlannerSubmissions(plannerRes.data.submissions);
           }
           setDataError("");
         })
@@ -279,6 +300,15 @@ function AdminDashboardPage() {
                         }`}
                       >
                         {chatSummary.no_leidos}
+                      </span>
+                    )}
+                    {item.id === "planner" && plannerSummary.pendientes > 0 && (
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${
+                          isActive ? "bg-white text-[#5848f4]" : "crescendo-btn-gradient text-white"
+                        }`}
+                      >
+                        {plannerSummary.pendientes}
                       </span>
                     )}
                     {isActive && <IconArrowRight className="h-3.5 w-3.5 opacity-90" />}
@@ -968,6 +998,15 @@ function AdminDashboardPage() {
               conversations={chatConversations}
               summary={chatSummary}
               onConversationsUpdated={triggerReload}
+            />
+          )}
+
+          {/* VISTA 7: PLANIFICADOR DE PROYECTOS (Registros de clientes y funcionalidades elegidas) */}
+          {activeSection === "planner" && (
+            <PlanificadorAdminPanel
+              submissions={plannerSubmissions}
+              summary={plannerSummary}
+              onSubmissionsUpdated={triggerReload}
             />
           )}
         </main>

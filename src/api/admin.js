@@ -21,3 +21,11 @@ export const replyAdminChatRequest = (id, mensaje) =>
   instanceAxios.post(`/admin/chats/${id}/reply`, { mensaje });
 
 export const deleteAdminChatRequest = (id) => instanceAxios.delete(`/admin/chats/${id}`);
+
+// Planificador de proyectos (Registros de clientes)
+export const getAdminPlannerRequest = () => instanceAxios.get("/admin/planner");
+
+export const updateAdminPlannerRequest = (id, payload) =>
+  instanceAxios.patch(`/admin/planner/${id}`, payload);
+
+export const deleteAdminPlannerRequest = (id) => instanceAxios.delete(`/admin/planner/${id}`);

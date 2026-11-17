@@ -95,15 +95,51 @@ function ChatWidget() {
   useEffect(() => {
     const handleOpenChatEvent = (event) => {
       const prefill = event?.detail?.prefillMessage;
+      const incomingName = event?.detail?.nombre;
+      const incomingContact = event?.detail?.contacto;
+
       setIsOpen(true);
       setErrorMsg("");
+
+      if (
+        (typeof incomingName === "string" && incomingName.trim()) ||
+        (typeof incomingContact === "string" && incomingContact.trim())
+      ) {
+        setVisitorInfo((prev) => {
+          const next = {
+            ...prev,
+            nombre:
+              typeof incomingName === "string" && incomingName.trim()
+                ? incomingName.trim()
+                : prev.nombre,
+            contacto:
+              typeof incomingContact === "string" && incomingContact.trim()
+                ? incomingContact.trim()
+                : prev.contacto,
+          };
+          saveStoredVisitor(next);
+          return next;
+        });
+        setFieldErrors({ nombre: false, contacto: false });
+      }
+
       if (typeof prefill === "string" && prefill.trim()) {
         setMensaje(prefill);
       }
+
+      const nextName =
+        typeof incomingName === "string" && incomingName.trim()
+          ? incomingName.trim()
+          : visitorInfo.nombre.trim();
+      const nextContact =
+        typeof incomingContact === "string" && incomingContact.trim()
+          ? incomingContact.trim()
+          : visitorInfo.contacto.trim();
+
       window.setTimeout(() => {
-        if (!visitorInfo.nombre.trim()) {
+        if (!nextName) {
           nameInputRef.current?.focus();
-        } else if (!visitorInfo.contacto.trim()) {
+        } else if (!nextContact) {
           contactInputRef.current?.focus();
         } else {
           messageInputRef.current?.focus();
