@@ -1,0 +1,30 @@
+User-agent: *
+Allow: /
+Allow: /planificador
+Disallow: /adminetronic
+Disallow: /login
+Disallow: /apietronic/
+
+# Motores alternativos e IA de búsqueda
+User-agent: bingbot
+Allow: /
+
+User-agent: msnbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://etronic.com.mx/sitemap.xml

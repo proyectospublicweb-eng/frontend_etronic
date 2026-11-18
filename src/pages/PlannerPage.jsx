@@ -11,6 +11,11 @@ function PlannerPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    const prevTitle = document.title;
+    document.title = "Planificador de Proyecto | ETRONIC";
+    return () => {
+      document.title = prevTitle;
+    };
   }, []);
 
   return (
