@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Allow: /planificador
+Disallow: /planificador
 Disallow: /adminetronic
 Disallow: /login
 Disallow: /apietronic/
