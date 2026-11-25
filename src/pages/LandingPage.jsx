@@ -3,6 +3,7 @@ import {
   CardWaveDecor,
   IconArrowRight,
   IconBriefcaseMedical,
+  IconChatBubble,
   IconClose,
   IconCogs,
   IconCommentsDollar,
@@ -26,6 +27,7 @@ import {
 import { useParallaxEngine } from "../hooks/useParallaxEngine";
 import ChatWidget from "../components/ChatWidget.jsx";
 import FeatureSpotlightSection from "../components/FeatureSpotlightSection.jsx";
+import EtronicLogo from "../components/EtronicLogo.jsx";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -159,6 +161,29 @@ const SPECIALIZED_SERVICES = [
     href: "/planificador",
     openInNewTab: true,
   },
+  {
+    id: "omnichannel-hub",
+    badge: "LLAVE EN MANO",
+    category: "Automatización & Mensajería",
+    image: "/images/card-omnichannel-hub.jpg",
+    icon: IconChatBubble,
+    title: "Hub Omnicanal y Redes Sociales",
+    reviews: "(115)",
+    description:
+      "Configuración completa y soporte técnico llave en mano para unificar tus mensajes de WhatsApp y correo corporativo en un solo panel, con publicación automática en Facebook e Instagram. Sin costos por mensaje ni trámites burocráticos; tú solo operas y atiendes a tus clientes.",
+    cta: "Cotizar y Consultar por Chat",
+    href: "#contacto",
+    chatPrefill:
+      "Hola Etronic, me interesa el servicio de Hub Omnicanal (WhatsApp, Correo y Redes). Quisiera una cotización y resolver dudas sobre la configuración completa y el soporte: ",
+    heroSlide: {
+      prefix: "Implementamos tu ",
+      highlight: "Hub Omnicanal y Redes",
+      suffix: " Llave en Mano",
+      floatingBottom: "WhatsApp · Correo · FB · IG",
+      floatingTop: "Configuración y Soporte Total",
+      navTarget: "servicios",
+    },
+  },
 ];
 
 const HERO_SLIDES = [
@@ -183,6 +208,7 @@ const HERO_SLIDES = [
     floatingTop: "Servidores Dedicados",
   },
   ...[
+    SPECIALIZED_SERVICES[5],
     SPECIALIZED_SERVICES[3],
     SPECIALIZED_SERVICES[0],
     SPECIALIZED_SERVICES[1],
@@ -198,6 +224,7 @@ const HERO_SLIDES = [
     primaryCta: srv.cta,
     primaryHref: srv.href,
     primaryNav: srv.heroSlide.navTarget,
+    chatPrefill: srv.chatPrefill || null,
     secondaryCta: "Ver Todos los Servicios",
     secondaryHref: "#servicios",
     secondaryNav: "servicios",
@@ -232,6 +259,21 @@ const AI_SECTORS = [
   {
     title: "Cualquier Giro a la Medida",
     detail: "Analizamos tu flujo actual e integramos la IA exacta que acelere tus procesos.",
+  },
+];
+
+const OMNICHANNEL_HIGHLIGHTS = [
+  {
+    title: "Configuración Llave en Mano",
+    detail: "Etronic deja todo conectado, probado y 100% funcional.",
+  },
+  {
+    title: "Bandeja Única en Tiempo Real",
+    detail: "Atiende WhatsApp y correos corporativos en un solo panel.",
+  },
+  {
+    title: "Publicación Social Directa",
+    detail: "Publica y programa en Facebook e Instagram sin costos extra.",
   },
 ];
 
@@ -471,6 +513,14 @@ function LandingPage() {
 
     let scrollTarget = "servicios";
     if (
+      q.includes("whatsapp") ||
+      q.includes("omnicanal") ||
+      q.includes("omnichannel") ||
+      q.includes("redes") ||
+      q.includes("hub")
+    ) {
+      scrollTarget = "omnicanal-destacado";
+    } else if (
       q.includes("planificador") ||
       q.includes("kanban") ||
       q.includes("gantt") ||
@@ -532,11 +582,7 @@ function LandingPage() {
             onClick={() => setActiveNav("inicio")}
             className={`${searchOpen ? "hidden sm:flex" : "flex"} shrink-0 items-center py-2`}
           >
-            <img
-              src="/images/logo-etronic-dark.png"
-              alt="ETRONIC"
-              className="h-9 w-auto object-contain sm:h-11"
-            />
+            <EtronicLogo className="h-9 w-auto sm:h-11" />
           </a>
 
           {/* Navegación Central */}
@@ -744,15 +790,27 @@ function LandingPage() {
                     </p>
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3.5">
-                      <a
-                        href={slide.primaryHref}
-                        tabIndex={isActive ? 0 : -1}
-                        onClick={() => setActiveNav(slide.primaryNav)}
-                        className="crescendo-btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(93,74,255,0.45)] transition duration-300 hover:-translate-y-0.5 sm:w-auto sm:px-7"
-                      >
-                        <span>{slide.primaryCta}</span>
-                        <IconArrowRight className="h-4 w-4 shrink-0" />
-                      </a>
+                      {slide.chatPrefill ? (
+                        <button
+                          type="button"
+                          tabIndex={isActive ? 0 : -1}
+                          onClick={() => openProjectChat(slide.chatPrefill)}
+                          className="crescendo-btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(93,74,255,0.45)] transition duration-300 hover:-translate-y-0.5 sm:w-auto sm:px-7"
+                        >
+                          <span>{slide.primaryCta}</span>
+                          <IconArrowRight className="h-4 w-4 shrink-0" />
+                        </button>
+                      ) : (
+                        <a
+                          href={slide.primaryHref}
+                          tabIndex={isActive ? 0 : -1}
+                          onClick={() => setActiveNav(slide.primaryNav)}
+                          className="crescendo-btn-gradient inline-flex w-full items-center justify-center gap-2.5 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(93,74,255,0.45)] transition duration-300 hover:-translate-y-0.5 sm:w-auto sm:px-7"
+                        >
+                          <span>{slide.primaryCta}</span>
+                          <IconArrowRight className="h-4 w-4 shrink-0" />
+                        </a>
+                      )}
 
                       <a
                         href={slide.secondaryHref}
@@ -921,6 +979,34 @@ function LandingPage() {
             className="pointer-events-none absolute -left-28 top-[46%] h-96 w-96 rounded-full bg-blue-500/[0.12] blur-3xl"
           />
 
+          {/* Sección Destacada post-slider: Enfoque Visual en Hub Omnicanal y Redes */}
+          <FeatureSpotlightSection
+            id="omnicanal-destacado"
+            variant="showcase"
+            image="/images/card-omnichannel-hub.jpg"
+            imageAlt="Visualización 3D del Hub Omnicanal con WhatsApp, Correo y Redes Sociales en Etronic"
+            imageBadge="Configuración Completa Llave en Mano"
+            imageSide="right"
+            eyebrow="Automatización & Mensajería Empresarial"
+            eyebrowIcon={IconChatBubble}
+            titlePrefix="Centraliza tu "
+            titleHighlight="WhatsApp, Correo y Redes"
+            titleSuffix=" en un Solo Panel"
+            description="Etronic realiza la configuración completa y te brinda soporte continuo: unificamos tus conversaciones de WhatsApp y correos con tu propio dominio para responder en segundos, con publicación automática en Facebook e Instagram. Sin costos por mensaje ni trámites burocráticos; te lo dejamos 100% funcional y tú solo te encargas de atender y vender."
+            highlights={OMNICHANNEL_HIGHLIGHTS}
+            primaryCta={{
+              label: "Cotizar y Consultar por Chat",
+              onClick: () =>
+                openProjectChat(
+                  "Hola Etronic, me interesa el servicio de Hub Omnicanal (WhatsApp, Correo y Redes). Quisiera una cotización y resolver algunas dudas sobre la configuración completa y el soporte: ",
+                ),
+            }}
+            secondaryCta={{
+              label: "Ver Todos los Servicios",
+              href: "#servicios",
+            }}
+          />
+
           {/* Sección Destacada post-slider: Enfoque Visual en Inteligencia Artificial */}
           <FeatureSpotlightSection
             id="ia-destacado"
@@ -1072,24 +1158,45 @@ function LandingPage() {
 
                       {/* Pie de Tarjeta con CTA Azul + Botón Circular Violeta */}
                       <div className="mt-5 flex items-center justify-between gap-2 px-5 pb-5">
-                        <a
-                          href={ctaHref}
-                          target={linkTarget}
-                          rel={linkRel}
-                          className="font-display text-sm font-extrabold leading-tight text-[#1d4ed8] transition hover:text-[#5848f4]"
-                        >
-                          {service.cta}
-                        </a>
+                        {service.chatPrefill ? (
+                          <button
+                            type="button"
+                            onClick={() => openProjectChat(service.chatPrefill)}
+                            className="font-display text-left text-sm font-extrabold leading-tight text-[#1d4ed8] transition hover:text-[#5848f4]"
+                          >
+                            {service.cta}
+                          </button>
+                        ) : (
+                          <a
+                            href={ctaHref}
+                            target={linkTarget}
+                            rel={linkRel}
+                            className="font-display text-sm font-extrabold leading-tight text-[#1d4ed8] transition hover:text-[#5848f4]"
+                          >
+                            {service.cta}
+                          </a>
+                        )}
 
-                        <a
-                          href={ctaHref}
-                          target={linkTarget}
-                          rel={linkRel}
-                          aria-label={service.cta}
-                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#5848f4] text-white shadow-md shadow-indigo-500/35 transition duration-300 hover:scale-105 hover:bg-[#4636e3]"
-                        >
-                          <IconArrowRight className="h-4 w-4" />
-                        </a>
+                        {service.chatPrefill ? (
+                          <button
+                            type="button"
+                            onClick={() => openProjectChat(service.chatPrefill)}
+                            aria-label={service.cta}
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#5848f4] text-white shadow-md shadow-indigo-500/35 transition duration-300 hover:scale-105 hover:bg-[#4636e3]"
+                          >
+                            <IconArrowRight className="h-4 w-4" />
+                          </button>
+                        ) : (
+                          <a
+                            href={ctaHref}
+                            target={linkTarget}
+                            rel={linkRel}
+                            aria-label={service.cta}
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#5848f4] text-white shadow-md shadow-indigo-500/35 transition duration-300 hover:scale-105 hover:bg-[#4636e3]"
+                          >
+                            <IconArrowRight className="h-4 w-4" />
+                          </a>
+                        )}
                       </div>
                     </article>
                   </div>
@@ -1453,11 +1560,7 @@ function LandingPage() {
               aria-label="Acceso administrativo Etronic"
               className="inline-flex shrink-0 transition duration-200 hover:opacity-85"
             >
-              <img
-                src="/images/logo-etronic-dark.png"
-                alt="ETRONIC"
-                className="h-8 w-auto object-contain"
-              />
+              <EtronicLogo className="h-8 w-auto" />
             </a>
             <p id="footer-info" className="text-center text-xs sm:text-left sm:text-sm">
               © {CURRENT_YEAR} <span className="font-semibold text-slate-200">ETRONIC</span> |
