@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { IconShieldCheck } from "./LandingIcons.jsx";
+import EtronicLogo from "./EtronicLogo.jsx";
 
 function AuthLayout({ children }) {
   return (
@@ -11,11 +12,7 @@ function AuthLayout({ children }) {
         <div className="crescendo-navy-banner relative hidden w-1/2 flex-col justify-between overflow-hidden border-r border-white/10 p-10 lg:flex">
           <div className="flex items-center justify-between">
             <Link to="/" className="inline-flex items-center">
-              <img
-                src="/images/logo-etronic-dark.png"
-                alt="ETRONIC"
-                className="h-10 w-auto object-contain"
-              />
+              <EtronicLogo className="h-10 w-auto" />
             </Link>
 
             <span className="inline-flex items-center gap-1.5 rounded-full border border-[#60a5fa]/30 bg-[#3b82f6]/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#60a5fa]">
@@ -52,11 +49,7 @@ function AuthLayout({ children }) {
         <div className="flex w-full flex-col items-center justify-center px-5 py-8 sm:p-10 lg:w-1/2 lg:p-12">
           <div className="mb-6 lg:hidden">
             <Link to="/">
-              <img
-                src="/images/logo-etronic-dark.png"
-                alt="ETRONIC"
-                className="h-10 w-auto object-contain"
-              />
+              <EtronicLogo className="h-10 w-auto" />
             </Link>
           </div>
           {children}

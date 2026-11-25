@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import ChatWidget from "../components/ChatWidget.jsx";
 import { IconFacebook, IconInstagram, IconRss, IconTwitterX } from "../components/LandingIcons.jsx";
 import ProjectPlannerSection from "../components/ProjectPlannerSection.jsx";
+import EtronicLogo from "../components/EtronicLogo.jsx";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -26,11 +27,7 @@ function PlannerPage() {
 
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:h-20 sm:px-6">
           <Link to="/" className="flex shrink-0 items-center py-2">
-            <img
-              src="/images/logo-etronic-dark.png"
-              alt="ETRONIC"
-              className="h-9 w-auto object-contain sm:h-11"
-            />
+            <EtronicLogo className="h-9 w-auto sm:h-11" />
           </Link>
 
           <Link
@@ -61,11 +58,7 @@ function PlannerPage() {
               aria-label="Acceso administrativo Etronic"
               className="inline-flex shrink-0 transition duration-200 hover:opacity-85"
             >
-              <img
-                src="/images/logo-etronic-dark.png"
-                alt="ETRONIC"
-                className="h-8 w-auto object-contain"
-              />
+              <EtronicLogo className="h-8 w-auto" />
             </a>
             <p id="footer-info" className="text-center text-xs sm:text-left sm:text-sm">
               © {CURRENT_YEAR} <span className="font-semibold text-slate-200">ETRONIC</span> |

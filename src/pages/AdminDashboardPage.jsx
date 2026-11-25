@@ -12,6 +12,7 @@ import {
 } from "../api/admin.js";
 import ControlSoportePanel from "../components/ControlSoportePanel.jsx";
 import PlanificadorAdminPanel from "../components/PlanificadorAdminPanel.jsx";
+import EtronicLogo from "../components/EtronicLogo.jsx";
 import {
   CardWaveDecor,
   IconArrowRight,
@@ -245,11 +246,7 @@ function AdminDashboardPage() {
         {/* Cabecera fija del Panel Izquierdo */}
         <div className="relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-white/[0.08] px-5 sm:h-20 sm:px-6">
           <div className="flex items-center gap-2.5">
-            <img
-              src="/images/logo-etronic-dark.png"
-              alt="ETRONIC"
-              className="h-8 w-auto object-contain sm:h-9"
-            />
+            <EtronicLogo className="h-8 w-auto sm:h-9" />
             <span className="crescendo-btn-gradient rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-md shadow-indigo-600/30">
               Admin
             </span>
